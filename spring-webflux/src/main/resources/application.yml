@@ -1,0 +1,18 @@
+---
+spring:
+  config:
+    activate:
+      on-profile: postgres
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hello_world
+    username: postgres
+    password: postgres
+---
+spring:
+  config:
+    activate:
+      on-profile: dynamodb
+---
+spring:
+  profiles:
+    active: postgres
