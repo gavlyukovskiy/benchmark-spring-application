@@ -113,7 +113,7 @@ class IoService {
         val file = Files.createTempFile("benchmark_cp", ".data")
         val zeros = (1..chunkSize).map { 0.toByte() }.toList().toByteArray()
         (1..chunks).forEach {
-            file.writeBytes(zeros, StandardOpenOption.DSYNC)
+            file.writeBytes(zeros, StandardOpenOption.APPEND, StandardOpenOption.DSYNC)
         }
         return file.readBytes().size.also {
             file.deleteIfExists()
