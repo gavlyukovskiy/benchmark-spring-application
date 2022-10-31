@@ -1,5 +1,7 @@
 package com.github.gavlyukovskiy.app
 
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.apache.coyote.ProtocolHandler
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.field
@@ -20,10 +22,15 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.atomic.LongAdder
 import javax.sql.DataSource
+import kotlin.io.path.deleteIfExists
+import kotlin.io.path.readBytes
+import kotlin.io.path.writeBytes
 
 
 fun main(args: Array<String>) {
@@ -97,23 +104,58 @@ class DynamoDbRepository(val dynamoDbClient: DynamoDbClient) : Repository {
     }
 }
 
+@Component
+class IoService {
+
+    val client = OkHttpClient()
+
+    fun copyFiles(chunkSize: Int = 1024, chunks: Int = 50): Int {
+        val file = Files.createTempFile("benchmark_cp", ".data")
+        val zeros = (1..chunkSize).map { 0.toByte() }.toList().toByteArray()
+        (1..chunks).forEach {
+            file.writeBytes(zeros, StandardOpenOption.DSYNC)
+        }
+        return file.readBytes().size.also {
+            file.deleteIfExists()
+        }
+    }
+
+    fun downloadFile(): Int {
+        val request = Request.Builder().url("https://www.briandunning.com/sample-data/us-500.zip").build()
+        val data1 = client.newCall(request)
+            .execute()
+            .use { response -> response.body!!.string() }
+        val data2 = client.newCall(request)
+            .execute()
+            .use { response -> response.body!!.string() }
+        return data1.length + data2.length
+    }
+}
+
 @RestController
-class Controller(val repository: Repository) {
+class Controller(val repository: Repository, val ioService: IoService) {
     companion object {
         val logger = LoggerFactory.getLogger(Controller::class.java)
         val requestCount = LongAdder()
         var previousRequestCount: Long = 0
     }
-    @GetMapping("/db")
-    fun db(): World? = repository.getWorld(ThreadLocalRandom.current().nextInt(1, 10001))
-        .also { requestCount.increment() }
 
     @GetMapping("/hello")
-    fun hello(): World? = World(0, "Hello world")
-        .also { requestCount.increment() }
+    fun hello(): World? = record { World(0, "Hello world") }
+
+    @GetMapping("/db")
+    fun db(): World? = record { repository.getWorld(ThreadLocalRandom.current().nextInt(1, 10001)) }
+
+    @GetMapping("/cp")
+    fun cp(): Int = record { ioService.copyFiles() }
+
+    @GetMapping("/download")
+    fun download(): Int = record { ioService.downloadFile() }
+
+    private fun <T> record(block: () -> T) = block().also { requestCount.increment() }
 
     @Scheduled(fixedDelay = 5000)
-    fun log() {
+    private fun log() {
         val count = requestCount.sum()
         if (count > 0) {
             logger.info("Throughput[5s]: ${(count - previousRequestCount) / 5}req/s (total: $count)")

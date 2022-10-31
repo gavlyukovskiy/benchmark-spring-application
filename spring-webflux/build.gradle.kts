@@ -39,6 +39,7 @@ dependencies {
     implementation("org.jooq:jooq")
     implementation("org.jooq:jooq-kotlin")
     implementation("org.jooq:jooq-kotlin-coroutines:${project.extra["jooq.version"]}")
+    implementation("com.squareup.okhttp3:okhttp")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
 }

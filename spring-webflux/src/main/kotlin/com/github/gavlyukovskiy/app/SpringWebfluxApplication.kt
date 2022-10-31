@@ -2,9 +2,12 @@ package com.github.gavlyukovskiy.app
 
 import io.r2dbc.spi.Connection
 import io.r2dbc.spi.ConnectionFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.reactive.awaitFirstOrNull
-import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.slf4j.LoggerFactory
@@ -21,8 +24,13 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
 import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.atomic.LongAdder
+import kotlin.io.path.deleteIfExists
+import kotlin.io.path.readBytes
+import kotlin.io.path.writeBytes
 
 fun main(args: Array<String>) {
     runApplication<BenchmarkSpringWebfluxApplication>(*args)
@@ -97,24 +105,58 @@ class DynamoDbRepository(val dynamoDbAsyncClient: DynamoDbAsyncClient) : Reposit
     }
 }
 
+@Component
+class IoService {
+
+    val client = OkHttpClient()
+
+    suspend fun copyFiles(chunkSize: Int = 1024, chunks: Int = 50): Int = withContext(Dispatchers.IO) {
+        val file = Files.createTempFile("benchmark", ".data")
+        val zeros = (1..chunkSize).map { 0.toByte() }.toList().toByteArray()
+        (1..chunks).forEach {
+            file.writeBytes(zeros, StandardOpenOption.DSYNC)
+        }
+        file.readBytes().size.also {
+            file.deleteIfExists()
+        }
+    }
+
+    suspend fun downloadFile(): Int = withContext(Dispatchers.IO) {
+        val request = Request.Builder().url("https://www.briandunning.com/sample-data/us-500.zip").build()
+        val data1 = client.newCall(request)
+            .execute()
+            .use { response -> response.body!!.string() }
+        val data2 = client.newCall(request)
+            .execute()
+            .use { response -> response.body!!.string() }
+        data1.length + data2.length
+    }
+}
+
 @RestController
-class Controller(val repository: Repository) {
+class Controller(val repository: Repository, val ioService: IoService) {
     companion object {
         val logger = LoggerFactory.getLogger(Controller::class.java)
         val requestCount = LongAdder()
         var previousRequestCount: Long = 0
     }
 
-    @GetMapping("/db")
-    suspend fun db(): World? = repository.getWorld(ThreadLocalRandom.current().nextInt(1, 10001))
-        .also { requestCount.increment() }
-
     @GetMapping("/hello")
-    fun hello(): World? = World(0, "Hello world")
-        .also { requestCount.increment() }
+    suspend fun hello(): World? = record { World(0, "Hello world") }
+
+    @GetMapping("/db")
+    suspend fun db(): World? = record { repository.getWorld(ThreadLocalRandom.current().nextInt(1, 10001)) }
+
+    @GetMapping("/cp")
+    suspend fun cp(): Int = record { ioService.copyFiles() }
+
+    @GetMapping("/download")
+    suspend fun download(): Int = record { ioService.downloadFile() }
+
+    private suspend fun <T> record(block: suspend () -> T) = block().also { requestCount.increment() }
 
     @Scheduled(fixedDelay = 5000)
-    fun log() {
+    private fun log() {
         val count = requestCount.sum()
         if (count > 0) {
             logger.info("Throughput[5s]: ${(count - previousRequestCount) / 5}req/s (total: $count)")
