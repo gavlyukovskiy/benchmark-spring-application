@@ -4,14 +4,18 @@ plugins {
     kotlin("jvm")
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_17
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(19))
+    }
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:2.7.3"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:2.7.4"))
     implementation(platform("software.amazon.awssdk:bom:2.17.261"))
 
     implementation("software.amazon.awssdk:dynamodb")

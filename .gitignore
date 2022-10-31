@@ -37,3 +37,7 @@ out/
 
 ### Docker temp files ###
 docker
+
+### JMeter
+jmeter.log
+tools/apache-jmeter-5.5/backups

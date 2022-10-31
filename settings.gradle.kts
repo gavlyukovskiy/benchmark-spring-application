@@ -7,9 +7,9 @@ fileTree("./")
 
 pluginManagement {
     plugins {
-        id("org.springframework.boot") version "2.7.3"
-        id("io.spring.dependency-management") version "1.0.13.RELEASE"
-        kotlin("jvm") version "1.7.10"
-        kotlin("plugin.spring") version "1.7.10"
+        id("org.springframework.boot") version "2.7.5"
+        id("io.spring.dependency-management") version "1.1.0"
+        kotlin("jvm") version "1.7.20"
+        kotlin("plugin.spring") version "1.7.20"
     }
 }

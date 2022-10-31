@@ -3,10 +3,15 @@ spring:
   config:
     activate:
       on-profile: postgres
-  datasource:
-    url: jdbc:postgresql://localhost:5432/hello_world
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/hello_world
     username: postgres
     password: postgres
+    pool:
+      max-size: 10
+logging:
+  level:
+    org.jooq.Constants: OFF
 ---
 spring:
   config:
@@ -15,4 +20,10 @@ spring:
 ---
 spring:
   profiles:
-    active: postgres
+    active: postgres,jooq
+  main:
+    banner-mode: off
+
+server:
+  http2:
+    enabled: true

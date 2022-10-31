@@ -7,21 +7,38 @@ plugins {
     kotlin("plugin.spring")
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_17
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(19))
+    }
+}
 
 repositories {
     mavenCentral()
 }
 
+extra["jooq.version"] = "3.17.4"
+
 dependencies {
+    implementation(platform("software.amazon.awssdk:bom:2.17.261"))
+
+    implementation("software.amazon.awssdk:dynamodb")
+
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-jooq")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-    runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("io.r2dbc:r2dbc-pool")
+    runtimeOnly("org.postgresql:r2dbc-postgresql")
+    implementation("org.jooq:jooq")
+    implementation("org.jooq:jooq-kotlin")
+    implementation("org.jooq:jooq-kotlin-coroutines:${project.extra["jooq.version"]}")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
 }
