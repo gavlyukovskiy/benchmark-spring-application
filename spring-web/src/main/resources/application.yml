@@ -2,30 +2,22 @@
 spring:
   config:
     activate:
-      on-profile: postgres
+      on-profile: jooq
+logging:
+  level:
+    org.jooq.Constants: OFF
+---
+spring:
+  profiles:
+    active: jooq
+  main:
+    banner-mode: off
   datasource:
     url: jdbc:postgresql://localhost:5432/hello_world
     username: postgres
     password: postgres
     hikari:
       maximum-pool-size: 10
-logging:
-  level:
-    org.jooq.Constants: OFF
----
-spring:
-  config:
-    activate:
-      on-profile: dynamodb
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
----
-spring:
-  profiles:
-    active: postgres,jooq
-  main:
-    banner-mode: off
 
 server:
   http2:

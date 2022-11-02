@@ -15,11 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:2.7.4"))
-    implementation(platform("software.amazon.awssdk:bom:2.17.261"))
-
-    implementation("software.amazon.awssdk:dynamodb")
-
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:2.7.5"))
     implementation("org.springframework:spring-jdbc")
     implementation("com.fasterxml.jackson.core:jackson-annotations")
     implementation("com.fasterxml.jackson.core:jackson-core")

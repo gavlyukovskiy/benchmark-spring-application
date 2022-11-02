@@ -13,15 +13,12 @@ import org.springframework.boot.runApplication
 import org.springframework.boot.web.embedded.tomcat.TomcatProtocolHandlerCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Profile
-import org.springframework.core.task.AsyncTaskExecutor
 import org.springframework.core.task.support.TaskExecutorAdapter
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 import java.util.concurrent.Executors
@@ -32,7 +29,6 @@ import kotlin.io.path.deleteIfExists
 import kotlin.io.path.readBytes
 import kotlin.io.path.writeBytes
 
-
 fun main(args: Array<String>) {
     runApplication<BenchmarkSpringWebApplication>(*args)
 }
@@ -40,23 +36,17 @@ fun main(args: Array<String>) {
 @SpringBootApplication
 @EnableScheduling
 class BenchmarkSpringWebApplication {
-    @Bean
-    @Profile("dynamodb")
-    fun dynamoDbClient(): DynamoDbClient = DynamoDbClient.builder().build()
 
     @Bean
     @Profile("loom")
-    fun protocolHandlerVirtualThreadExecutorCustomizer(): TomcatProtocolHandlerCustomizer<*>? {
-        return TomcatProtocolHandlerCustomizer { protocolHandler: ProtocolHandler ->
+    fun protocolHandlerVirtualThreadExecutorCustomizer() =
+        TomcatProtocolHandlerCustomizer { protocolHandler: ProtocolHandler ->
             protocolHandler.executor = Executors.newVirtualThreadPerTaskExecutor()
         }
-    }
 
     @Bean(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME)
     @Profile("loom")
-    fun asyncTaskExecutor(): AsyncTaskExecutor? {
-        return TaskExecutorAdapter(Executors.newVirtualThreadPerTaskExecutor())
-    }
+    fun asyncTaskExecutor() = TaskExecutorAdapter(Executors.newVirtualThreadPerTaskExecutor())
 }
 
 sealed interface Repository {
@@ -64,10 +54,10 @@ sealed interface Repository {
 }
 
 @Component
-@Profile("postgres && !jooq")
+@Profile("!jooq")
 class PostgresRepository(val dataSource: DataSource) : Repository {
-    override fun getWorld(id: Int): World? {
-        return dataSource.connection.use { connection ->
+    override fun getWorld(id: Int): World? =
+        dataSource.connection.use { connection ->
             connection.prepareStatement("select id, message from worlds where id = ?").use { preparedStatement ->
                 preparedStatement.setInt(1, id)
                 preparedStatement.executeQuery().use { resultSet ->
@@ -76,32 +66,16 @@ class PostgresRepository(val dataSource: DataSource) : Repository {
                 }
             }
         }
-    }
 }
 
 @Component
-@Profile("postgres && jooq")
+@Profile("jooq")
 class JooqRepository(val context: DSLContext) : Repository {
-    override fun getWorld(id: Int): World? {
-        return context.select(field("id"), field("message"))
+    override fun getWorld(id: Int): World? =
+        context.select(field("id"), field("message"))
             .from(table("worlds"))
             .where(field("id").eq(id))
             .fetchOneInto(World::class.java)
-    }
-}
-
-@Component
-@Profile("dynamodb")
-class DynamoDbRepository(val dynamoDbClient: DynamoDbClient) : Repository {
-    override fun getWorld(id: Int): World? {
-        return dynamoDbClient.getItem {
-            it.tableName("worlds")
-            it.attributesToGet("id", "message")
-            it.key(mapOf("id" to AttributeValue.fromN(id.toString())))
-        }
-            .item()
-            ?.let { World(it["id"]!!.n().toInt(), it["message"]!!.s()) }
-    }
 }
 
 @Component
@@ -166,5 +140,5 @@ class Controller(val repository: Repository, val ioService: IoService) {
 
 data class World(
     val id: Int,
-    val message: String,
+    val message: String
 )

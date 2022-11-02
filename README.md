@@ -19,9 +19,9 @@
     tools/apache-jmeter-5.5/bin/jmeter -n -t tools/download_load_test.jmx [-Jthreads=10] [-Jrequests=250]
     ```
 
-### Web + Postgres + jOOQ
+### Web + jOOQ
 ```bash
-./gradlew :spring-web:bootRun --args="--spring.profiles.active=postgres,jooq"
+./gradlew :spring-web:bootRun --args="--spring.profiles.active=jooq"
 ```
 #### Results (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 JMeter:
@@ -54,9 +54,9 @@ Logs:
 2022-10-31 23:14:42.843  INFO 10264 --- [   scheduling-1] com.github.gavlyukovskiy.app.Controller  : Throughput[5s]: 5311req/s (total: 100000)
 2022-10-31 23:14:47.850  INFO 10264 --- [   scheduling-1] com.github.gavlyukovskiy.app.Controller  : Throughput[5s]: 0req/s (total: 100000)
 ```
-### Web + Postgres + jOOQ + Loom
+### Web + jOOQ + Loom
 ```bash
-./gradlew :spring-web:bootRun --args="--spring.profiles.active=postgres,jooq,loom"
+./gradlew :spring-web:bootRun --args="--spring.profiles.active=jooq,loom"
 ```
 #### Results (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 JMeter:
@@ -89,9 +89,9 @@ Logs:
 2022-10-31 23:13:10.537  INFO 2564 --- [   scheduling-1] com.github.gavlyukovskiy.app.Controller  : Throughput[5s]: 5590req/s (total: 83041)
 2022-10-31 23:13:15.538  INFO 2564 --- [   scheduling-1] com.github.gavlyukovskiy.app.Controller  : Throughput[5s]: 3391req/s (total: 100000)
 ```
-### Webflux + Postgres + jOOQ
+### Webflux + jOOQ
 ```bash
-./gradlew :spring-webflux:bootRun --args="--spring.profiles.active=postgres,jooq"
+./gradlew :spring-webflux:bootRun --args="--spring.profiles.active=jooq"
 ```
 #### Results (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 JMeter:

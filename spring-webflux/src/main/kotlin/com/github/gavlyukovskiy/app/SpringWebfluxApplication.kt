@@ -3,7 +3,6 @@ package com.github.gavlyukovskiy.app
 import io.r2dbc.spi.Connection
 import io.r2dbc.spi.ConnectionFactory
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.future.await
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -22,8 +21,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
-import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 import java.util.concurrent.ThreadLocalRandom
@@ -39,12 +36,9 @@ fun main(args: Array<String>) {
 @SpringBootApplication
 @EnableScheduling
 class BenchmarkSpringWebfluxApplication {
-    @Bean
-    @Profile("dynamodb")
-    fun dynamoDbAsyncClient() = DynamoDbAsyncClient.builder().build()
 
     @Bean
-    @Profile("postgres && jooq")
+    @Profile("jooq")
     fun dslContext(connectionFactory: ConnectionFactory) = DSL.using(connectionFactory)
 }
 
@@ -53,10 +47,10 @@ sealed interface Repository {
 }
 
 @Component
-@Profile("postgres && !jooq")
+@Profile("!jooq")
 class PostgresRepository(val connectionFactory: ConnectionFactory) : Repository {
-    override suspend fun getWorld(id: Int): World? {
-        return Mono.usingWhen(
+    override suspend fun getWorld(id: Int): World? =
+        Mono.usingWhen(
             connectionFactory.create(),
             { connection ->
                 connection
@@ -66,43 +60,30 @@ class PostgresRepository(val connectionFactory: ConnectionFactory) : Repository 
                     .toMono()
                     .flatMap { result ->
                         result.map { row, _ ->
-                            World(row.get("id", Integer::class.java)!!.toInt(), row.get("message", String::class.java)!!)
+                            World(
+                                row.get("id", Integer::class.java)!!.toInt(),
+                                row.get("message", String::class.java)!!
+                            )
                         }
                             .toMono()
                     }
             },
             Connection::close
-        ).awaitFirstOrNull()
-    }
+        )
+            .awaitFirstOrNull()
 }
 
 @Component
-@Profile("postgres && jooq")
+@Profile("jooq")
 class JooqRepository(val context: DSLContext) : Repository {
-    override suspend fun getWorld(id: Int): World? {
-        return Mono.from(
+    override suspend fun getWorld(id: Int): World? =
+        Mono.from(
             context.select(DSL.field("id"), DSL.field("message"))
                 .from(DSL.table("worlds"))
                 .where(DSL.field("id").eq(id))
         )
             .map { it.into(World::class.java) }
             .awaitFirstOrNull()
-    }
-}
-
-@Component
-@Profile("dynamodb")
-class DynamoDbRepository(val dynamoDbAsyncClient: DynamoDbAsyncClient) : Repository {
-    override suspend fun getWorld(id: Int): World? {
-        return dynamoDbAsyncClient.getItem {
-            it.tableName("worlds")
-            it.attributesToGet("id", "message")
-            it.key(mapOf("id" to AttributeValue.fromN(id.toString())))
-        }
-            .await()
-            .item()
-            ?.let { World(it["id"]!!.n().toInt(), it["message"]!!.s()) }
-    }
 }
 
 @Component
@@ -167,5 +148,5 @@ class Controller(val repository: Repository, val ioService: IoService) {
 
 data class World(
     val id: Int,
-    val message: String,
+    val message: String
 )

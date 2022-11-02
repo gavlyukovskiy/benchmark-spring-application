@@ -20,10 +20,6 @@ repositories {
 extra["jooq.version"] = "3.17.4"
 
 dependencies {
-    implementation(platform("software.amazon.awssdk:bom:2.17.261"))
-
-    implementation("software.amazon.awssdk:dynamodb")
-
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-jooq")
