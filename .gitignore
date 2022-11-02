@@ -40,3 +40,4 @@ docker
 ### JMeter
 jmeter.log
 tools/apache-jmeter-5.5/backups
+report-output

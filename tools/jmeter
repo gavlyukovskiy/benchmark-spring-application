@@ -1,3 +1,0 @@
-#!/bin/sh
-
-eval $(pwd)/apache-jmeter-5.5/bin/jmeter "$@"
