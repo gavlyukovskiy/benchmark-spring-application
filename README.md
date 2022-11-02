@@ -150,23 +150,23 @@ vus_max........................: 998    min=109      max=998
 docker run --rm -i grafana/k6 run - --quiet <tools/k6/download-test.js
 ```
 ```text
-data_received..................: 109 kB 3.7 kB/s
-data_sent......................: 83 kB  2.9 kB/s
-dropped_iterations.............: 161    5.516152/s
-http_req_blocked...............: avg=650.04µs p(99)=2.86ms   p(99.9)=32.93ms  p(99.99)=33.2ms   max=33.23ms
-http_req_connecting............: avg=614.45µs p(99)=2.41ms   p(99.9)=32.84ms  p(99.99)=33.1ms   max=33.13ms
-http_req_duration..............: avg=5.05s    p(99)=9.34s    p(99.9)=9.76s    p(99.99)=9.78s    max=9.78s
-  { expected_response:true }...: avg=5.05s    p(99)=9.34s    p(99.9)=9.76s    p(99.99)=9.78s    max=9.78s
-http_req_failed................: 0.00%  ✓ 0         ✗ 841
-http_req_receiving.............: avg=89.53µs  p(99)=304.8µs  p(99.9)=426.47µs p(99.99)=472.66µs max=477.8µs
-http_req_sending...............: avg=47µs     p(99)=127.88µs p(99.9)=262.23µs p(99.99)=458.49µs max=480.3µs
-http_req_tls_handshaking.......: avg=0s       p(99)=0s       p(99.9)=0s       p(99.99)=0s       max=0s
-http_req_waiting...............: avg=5.05s    p(99)=9.34s    p(99.9)=9.76s    p(99.99)=9.78s    max=9.78s
-http_reqs......................: 841    28.814185/s
-iteration_duration.............: avg=5.05s    p(99)=9.34s    p(99.9)=9.76s    p(99.99)=9.78s    max=9.79s
-iterations.....................: 840    28.779923/s
-vus............................: 261    min=100     max=261
-vus_max........................: 261    min=100     max=261
+data_received..................: 115 kB 4.6 kB/s
+data_sent......................: 88 kB  3.5 kB/s
+dropped_iterations.............: 113    4.536711/s
+http_req_blocked...............: avg=459.4µs p(99)=2.01ms   p(99.9)=34.81ms  p(99.99)=35.67ms  max=35.77ms
+http_req_connecting............: avg=431.7µs p(99)=1.86ms   p(99.9)=34.73ms  p(99.99)=35.6ms   max=35.7ms
+http_req_duration..............: avg=3.54s   p(99)=5.54s    p(99.9)=5.58s    p(99.99)=5.61s    max=5.61s
+  { expected_response:true }...: avg=3.54s   p(99)=5.54s    p(99.9)=5.58s    p(99.99)=5.61s    max=5.61s
+http_req_failed................: 0.00%  ✓ 0         ✗ 889
+http_req_receiving.............: avg=88.46µs p(99)=223.76µs p(99.9)=339.56µs p(99.99)=518.42µs max=538.29µs
+http_req_sending...............: avg=43.15µs p(99)=117.96µs p(99.9)=130.65µs p(99.99)=133.21µs max=133.5µs
+http_req_tls_handshaking.......: avg=0s      p(99)=0s       p(99.9)=0s       p(99.99)=0s       max=0s
+http_req_waiting...............: avg=3.54s   p(99)=5.54s    p(99.9)=5.58s    p(99.99)=5.61s    max=5.61s
+http_reqs......................: 889    35.691468/s
+iteration_duration.............: avg=3.54s   p(99)=5.54s    p(99.9)=5.58s    p(99.99)=5.61s    max=5.61s
+iterations.....................: 888    35.65132/s
+vus............................: 213    min=100     max=213
+vus_max........................: 213    min=100     max=213
 ```
 
 ### Webflux + jOOQ
@@ -178,46 +178,46 @@ vus_max........................: 261    min=100     max=261
 docker run --rm -i grafana/k6 run - --quiet <tools/k6/db-read-test.js
 ```
 ```text
-data_received..................: 15 MB  484 kB/s
-data_sent......................: 3.9 MB 128 kB/s
-dropped_iterations.............: 57778  1891.854482/s
-http_req_blocked...............: avg=1.55ms   p(99)=3.53ms   p(99.9)=515.31ms p(99.99)=533.18ms max=535.48ms
-http_req_connecting............: avg=1.55ms   p(99)=3.44ms   p(99.9)=515.18ms p(99.99)=533.1ms  max=535.43ms
-http_req_duration..............: avg=407.15ms p(99)=918.85ms p(99.9)=1.15s    p(99.99)=1.24s    max=1.25s
-  { expected_response:true }...: avg=408.3ms  p(99)=918.89ms p(99.9)=1.15s    p(99.99)=1.24s    max=1.25s
-http_req_failed................: 0.28%  ✓ 119         ✗ 42105
-http_req_receiving.............: avg=57.7µs   p(99)=130.97µs p(99.9)=211.67µs p(99.99)=551.26µs max=1.02ms
-http_req_sending...............: avg=24.28µs  p(99)=90µs     p(99.9)=587.16µs p(99.99)=2.94ms   max=19.25ms
+data_received..................: 15 MB  744 kB/s
+data_sent......................: 4.1 MB 197 kB/s
+dropped_iterations.............: 56418  2737.18422/s
+http_req_blocked...............: avg=1.62ms   p(99)=3.22ms   p(99.9)=513.6ms  p(99.99)=520ms    max=549.79ms
+http_req_connecting............: avg=1.61ms   p(99)=3.07ms   p(99.9)=513.5ms  p(99.99)=519.9ms  max=549.49ms
+http_req_duration..............: avg=449.39ms p(99)=897.55ms p(99.9)=1.1s     p(99.99)=1.22s    max=1.23s
+  { expected_response:true }...: avg=449.39ms p(99)=897.55ms p(99.9)=1.1s     p(99.99)=1.22s    max=1.23s
+http_req_failed................: 0.00%  ✓ 0           ✗ 43584
+http_req_receiving.............: avg=57.25µs  p(99)=126.4µs  p(99.9)=204.78µs p(99.99)=774.57µs max=1.02ms
+http_req_sending...............: avg=22.76µs  p(99)=86.21µs  p(99.9)=353.85µs p(99.99)=1.13ms   max=1.66ms
 http_req_tls_handshaking.......: avg=0s       p(99)=0s       p(99.9)=0s       p(99.99)=0s       max=0s
-http_req_waiting...............: avg=407.07ms p(99)=918.67ms p(99.9)=1.15s    p(99.99)=1.24s    max=1.25s
-http_reqs......................: 42224  1382.561938/s
-iteration_duration.............: avg=493.32ms p(99)=958.46ms p(99.9)=30s      p(99.99)=30s      max=30s
-iterations.....................: 42223  1382.529194/s
-vus............................: 1000   min=708       max=1000
-vus_max........................: 1000   min=708       max=1000
+http_req_waiting...............: avg=449.31ms p(99)=897.43ms p(99.9)=1.1s     p(99.99)=1.22s    max=1.23s
+http_reqs......................: 43584  2114.527935/s
+iteration_duration.............: avg=451.08ms p(99)=963.7ms  p(99.9)=1.4s     p(99.99)=1.41s    max=1.42s
+iterations.....................: 43583  2114.479419/s
+vus............................: 1000   min=712       max=1000
+vus_max........................: 1000   min=712       max=1000
 ```
 #### Results **copy-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
 docker run --rm -i grafana/k6 run - --quiet <tools/k6/copy-test.js
 ```
 ```text
-data_received..................: 219 kB 5.4 kB/s
-data_sent......................: 272 kB 6.7 kB/s
-dropped_iterations.............: 822    20.384722/s
-http_req_blocked...............: avg=498.16µs p(99)=2.09ms   p(99.9)=42.63ms  p(99.99)=67.31ms  max=73.56ms
-http_req_connecting............: avg=472.37µs p(99)=1.94ms   p(99.9)=42.56ms  p(99.99)=67.24ms  max=73.49ms
-http_req_duration..............: avg=2.57s    p(99)=5.53s    p(99.9)=5.57s    p(99.99)=5.58s    max=5.59s
-  { expected_response:true }...: avg=2.8s     p(99)=5.53s    p(99.9)=5.57s    p(99.99)=5.59s    max=5.59s
-http_req_failed................: 8.02%  ✓ 255       ✗ 2924
-http_req_receiving.............: avg=80.85µs  p(99)=161.2µs  p(99.9)=442.17µs p(99.99)=599.64µs max=634µs
-http_req_sending...............: avg=43.6µs   p(99)=133.54µs p(99.9)=195.16µs p(99.99)=367.06µs max=421.6µs
+data_received..................: 238 kB 8.6 kB/s
+data_sent......................: 295 kB 11 kB/s
+dropped_iterations.............: 830    29.839818/s
+http_req_blocked...............: avg=708.48µs p(99)=3.45ms   p(99.9)=50.72ms  p(99.99)=64.75ms  max=70.34ms
+http_req_connecting............: avg=672.42µs p(99)=2.97ms   p(99.9)=50.64ms  p(99.99)=64.68ms  max=70.27ms
+http_req_duration..............: avg=4.21s    p(99)=7.81s    p(99.9)=7.87s    p(99.99)=7.88s    max=7.88s
+  { expected_response:true }...: avg=4.21s    p(99)=7.81s    p(99.9)=7.87s    p(99.99)=7.88s    max=7.88s
+http_req_failed................: 0.00%  ✓ 0          ✗ 3171
+http_req_receiving.............: avg=91.31µs  p(99)=168.43µs p(99.9)=257.86µs p(99.99)=655.16µs max=732.2µs
+http_req_sending...............: avg=53.02µs  p(99)=147.33µs p(99.9)=443.42µs p(99.99)=498.14µs max=500.4µs
 http_req_tls_handshaking.......: avg=0s       p(99)=0s       p(99.9)=0s       p(99.99)=0s       max=0s
-http_req_waiting...............: avg=2.57s    p(99)=5.53s    p(99.9)=5.57s    p(99.99)=5.58s    max=5.59s
-http_reqs......................: 3179   78.835806/s
-iteration_duration.............: avg=4.98s    p(99)=30s      p(99.9)=30s      p(99.99)=30s      max=30s
-iterations.....................: 3178   78.811007/s
-vus............................: 921    min=100     max=921
-vus_max........................: 921    min=100     max=921
+http_req_waiting...............: avg=4.21s    p(99)=7.81s    p(99.9)=7.87s    p(99.99)=7.88s    max=7.88s
+http_reqs......................: 3171   114.002484/s
+iteration_duration.............: avg=4.21s    p(99)=7.81s    p(99.9)=7.87s    p(99.99)=7.88s    max=7.88s
+iterations.....................: 3170   113.966532/s
+vus............................: 927    min=100      max=927
+vus_max........................: 927    min=100      max=927
 ```
 
 #### Results **download-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
