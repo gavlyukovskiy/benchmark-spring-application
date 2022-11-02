@@ -8,15 +8,15 @@
 2. Run application (see different options below)
 3. Run /db test (reading single random item from postgres), count: 100000, concurrency: 10
     ```bash
-    tools/apache-jmeter-5.5/bin/jmeter -n -t tools/db_read_load_test.jmx [-Jthreads=10] [-Jrequests=10000]
+    tools/apache-jmeter-5.5/bin/jmeter -n -t tools/db_read_load_test.jmx [-Jthreads=10] [-Jrequests=10000] [-Jhost=localhost]
     ```
 4. Run /cp test (writing 50MB file to a disk), count: 500, concurrency: 10
     ```bash
-    tools/apache-jmeter-5.5/bin/jmeter -n -t tools/copy_load_test.jmx [-Jthreads=10] [-Jrequests=1000]
+    tools/apache-jmeter-5.5/bin/jmeter -n -t tools/copy_load_test.jmx [-Jthreads=10] [-Jrequests=1000] [-Jhost=localhost]
     ```
 5. Run /download test (downloading two files consecutively from a webservice), count: 2500, concurrency: 10
     ```bash
-    tools/apache-jmeter-5.5/bin/jmeter -n -t tools/download_load_test.jmx [-Jthreads=10] [-Jrequests=250]
+    tools/apache-jmeter-5.5/bin/jmeter -n -t tools/download_load_test.jmx [-Jthreads=10] [-Jrequests=250] [-Jhost=localhost]
     ```
 
 ### Web + jOOQ
