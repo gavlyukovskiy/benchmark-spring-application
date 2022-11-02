@@ -115,7 +115,8 @@ class Controller(val repository: Repository, val ioService: IoService) {
     }
 
     @GetMapping("/hello")
-    fun hello(): World? = record { World(0, "Hello world") }
+    fun hello(): World? = World(0, "Hello world")
+        .also { logger.info("Hello!") }
 
     @GetMapping("/db")
     fun db(): World? = record { repository.getWorld(ThreadLocalRandom.current().nextInt(1, 10001)) }
