@@ -77,13 +77,11 @@ class PostgresRepository(val connectionFactory: ConnectionFactory) : Repository 
 @Profile("jooq")
 class JooqRepository(val context: DSLContext) : Repository {
     override suspend fun getWorld(id: Int): World? =
-        Mono.from(
-            context.select(DSL.field("id"), DSL.field("message"))
-                .from(DSL.table("worlds"))
-                .where(DSL.field("id").eq(id))
-        )
-            .map { it.into(World::class.java) }
+        context.select(DSL.field("id"), DSL.field("message"))
+            .from(DSL.table("worlds"))
+            .where(DSL.field("id").eq(id))
             .awaitFirstOrNull()
+            ?.into(World::class.java)
 }
 
 @Component
