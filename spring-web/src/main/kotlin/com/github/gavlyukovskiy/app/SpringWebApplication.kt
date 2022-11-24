@@ -3,14 +3,18 @@ package com.github.gavlyukovskiy.app
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.apache.coyote.ProtocolHandler
+import org.eclipse.jetty.util.thread.QueuedThreadPool
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.field
 import org.jooq.impl.DSL.table
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration
 import org.springframework.boot.runApplication
+import org.springframework.boot.web.embedded.jetty.ConfigurableJettyWebServerFactory
 import org.springframework.boot.web.embedded.tomcat.TomcatProtocolHandlerCustomizer
+import org.springframework.boot.web.server.WebServerFactoryCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Profile
 import org.springframework.core.task.support.TaskExecutorAdapter
@@ -39,9 +43,25 @@ class BenchmarkSpringWebApplication {
 
     @Bean
     @Profile("loom")
-    fun protocolHandlerVirtualThreadExecutorCustomizer() =
-        TomcatProtocolHandlerCustomizer { protocolHandler: ProtocolHandler ->
+    @ConditionalOnClass(name = [ "org.apache.coyote.ProtocolHandler" ])
+    @Suppress("ObjectLiteralToLambda") // not compiling as lambda to avoid ClassNotFoundException
+    fun tomcatLoomExecutor() = object : TomcatProtocolHandlerCustomizer<ProtocolHandler> {
+        override fun customize(protocolHandler: ProtocolHandler) {
             protocolHandler.executor = Executors.newVirtualThreadPerTaskExecutor()
+        }
+    }
+
+    @Bean
+    @Profile("loom")
+    @ConditionalOnClass(name = [ "org.springframework.boot.web.embedded.jetty.ConfigurableJettyWebServerFactory" ])
+    @Suppress("ObjectLiteralToLambda") // not compiling as lambda to avoid ClassNotFoundException
+    fun jettyLoomExecutor() =
+        object : WebServerFactoryCustomizer<ConfigurableJettyWebServerFactory> {
+            override fun customize(factory: ConfigurableJettyWebServerFactory) {
+                val threadPool = QueuedThreadPool()
+                threadPool.isUseVirtualThreads = true
+                factory.setThreadPool(threadPool)
+            }
         }
 
     @Bean(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME)
@@ -61,8 +81,11 @@ class PostgresRepository(val dataSource: DataSource) : Repository {
             connection.prepareStatement("select id, message from worlds where id = ?").use { preparedStatement ->
                 preparedStatement.setInt(1, id)
                 preparedStatement.executeQuery().use { resultSet ->
-                    resultSet.next()
-                    World(resultSet.getInt(1), resultSet.getString(2))
+                    if (resultSet.next()) {
+                        World(resultSet.getInt(1), resultSet.getString(2))
+                    } else {
+                        null
+                    }
                 }
             }
         }
@@ -79,9 +102,7 @@ class JooqRepository(val context: DSLContext) : Repository {
 }
 
 @Component
-class IoService {
-
-    val client = OkHttpClient()
+class IoService(val client: OkHttpClient = OkHttpClient()) {
 
     fun copyFiles(chunkSize: Int = 1024, chunks: Int = 50): Int {
         val file = Files.createTempFile("benchmark_cp", ".data")
@@ -115,8 +136,7 @@ class Controller(val repository: Repository, val ioService: IoService) {
     }
 
     @GetMapping("/hello")
-    fun hello(): World? = World(0, "Hello world")
-        .also { logger.info("Hello!") }
+    fun hello(): World? = World(0, "Hello world").also { logger.info("Hello! Virtual thread: ${Thread.currentThread().isVirtual}") }
 
     @GetMapping("/db")
     fun db(): World? = record { repository.getWorld(ThreadLocalRandom.current().nextInt(1, 10001)) }

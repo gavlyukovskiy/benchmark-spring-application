@@ -42,6 +42,69 @@ class BenchmarkSpringWebfluxApplication {
     fun dslContext(connectionFactory: ConnectionFactory) = DSL.using(connectionFactory)
 }
 
+@RestController
+class Controller(val repository: Repository, val ioService: IoService) {
+    companion object {
+        val logger = LoggerFactory.getLogger(Controller::class.java)
+        val requestCount = LongAdder()
+        var previousRequestCount: Long = 0
+    }
+
+    @GetMapping("/hello")
+    suspend fun hello(): World? = World(0, "Hello world").also { logger.info("Hello!") }
+
+    @GetMapping("/db")
+    suspend fun db(): World? = record { repository.getWorld(ThreadLocalRandom.current().nextInt(1, 10001)) }
+
+    @GetMapping("/cp")
+    suspend fun cp(): Int = record { ioService.copyFiles() }
+
+    @GetMapping("/download")
+    suspend fun download(): Int = record { ioService.downloadFile() }
+
+    private suspend fun <T> record(block: suspend () -> T) = block().also { requestCount.increment() }
+
+    @Scheduled(fixedDelay = 5000)
+    private fun log() {
+        val count = requestCount.sum()
+        if (count > 0) {
+            logger.info("Throughput[5s]: ${(count - previousRequestCount) / 5}req/s (total: $count)")
+            previousRequestCount = count
+        }
+    }
+}
+
+data class World(
+    val id: Int,
+    val message: String
+)
+
+@Component
+class IoService(val client: OkHttpClient = OkHttpClient()) {
+
+    suspend fun copyFiles(chunkSize: Int = 1024, chunks: Int = 50): Int = withContext(Dispatchers.IO) {
+        val file = Files.createTempFile("benchmark", ".data")
+        val zeros = (1..chunkSize).map { 0.toByte() }.toList().toByteArray()
+        (1..chunks).forEach {
+            file.writeBytes(zeros, StandardOpenOption.APPEND, StandardOpenOption.DSYNC)
+        }
+        file.readBytes().size.also {
+            file.deleteIfExists()
+        }
+    }
+
+    suspend fun downloadFile(): Int = withContext(Dispatchers.IO) {
+        val request = Request.Builder().url("https://www.briandunning.com/sample-data/us-500.zip").build()
+        val data1 = client.newCall(request)
+            .execute()
+            .use { response -> response.body!!.string() }
+        val data2 = client.newCall(request)
+            .execute()
+            .use { response -> response.body!!.string() }
+        data1.length + data2.length
+    }
+}
+
 sealed interface Repository {
     suspend fun getWorld(id: Int): World?
 }
@@ -83,69 +146,3 @@ class JooqRepository(val context: DSLContext) : Repository {
             .awaitFirstOrNull()
             ?.into(World::class.java)
 }
-
-@Component
-class IoService {
-
-    val client = OkHttpClient()
-
-    suspend fun copyFiles(chunkSize: Int = 1024, chunks: Int = 50): Int = withContext(Dispatchers.IO) {
-        val file = Files.createTempFile("benchmark", ".data")
-        val zeros = (1..chunkSize).map { 0.toByte() }.toList().toByteArray()
-        (1..chunks).forEach {
-            file.writeBytes(zeros, StandardOpenOption.APPEND, StandardOpenOption.DSYNC)
-        }
-        file.readBytes().size.also {
-            file.deleteIfExists()
-        }
-    }
-
-    suspend fun downloadFile(): Int = withContext(Dispatchers.IO) {
-        val request = Request.Builder().url("https://www.briandunning.com/sample-data/us-500.zip").build()
-        val data1 = client.newCall(request)
-            .execute()
-            .use { response -> response.body!!.string() }
-        val data2 = client.newCall(request)
-            .execute()
-            .use { response -> response.body!!.string() }
-        data1.length + data2.length
-    }
-}
-
-@RestController
-class Controller(val repository: Repository, val ioService: IoService) {
-    companion object {
-        val logger = LoggerFactory.getLogger(Controller::class.java)
-        val requestCount = LongAdder()
-        var previousRequestCount: Long = 0
-    }
-
-    @GetMapping("/hello")
-    suspend fun hello(): World? = World(0, "Hello world")
-        .also { logger.info("Hello!") }
-
-    @GetMapping("/db")
-    suspend fun db(): World? = record { repository.getWorld(ThreadLocalRandom.current().nextInt(1, 10001)) }
-
-    @GetMapping("/cp")
-    suspend fun cp(): Int = record { ioService.copyFiles() }
-
-    @GetMapping("/download")
-    suspend fun download(): Int = record { ioService.downloadFile() }
-
-    private suspend fun <T> record(block: suspend () -> T) = block().also { requestCount.increment() }
-
-    @Scheduled(fixedDelay = 5000)
-    private fun log() {
-        val count = requestCount.sum()
-        if (count > 0) {
-            logger.info("Throughput[5s]: ${(count - previousRequestCount) / 5}req/s (total: $count)")
-            previousRequestCount = count
-        }
-    }
-}
-
-data class World(
-    val id: Int,
-    val message: String
-)

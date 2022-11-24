@@ -23,6 +23,10 @@
 ```bash
 ./gradlew :spring-web:bootRun --args="--spring.profiles.active=jooq"
 ```
+or with Jetty
+```bash
+./gradlew -Pjetty :spring-web:bootRun --args="--spring.profiles.active=jooq"
+```
 #### Results **db-read-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
 docker run --rm -i grafana/k6 run - --quiet <tools/k6/db-read-test.js
@@ -97,6 +101,10 @@ vus_max........................: 112    min=100     max=112
 ### Web + jOOQ + Loom
 ```bash
 ./gradlew :spring-web:bootRun --args="--spring.profiles.active=jooq,loom"
+```
+or with Jetty
+```bash
+./gradlew -Pjetty :spring-web:bootRun --args="--spring.profiles.active=jooq,loom"
 ```
 #### Results **db-read-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
