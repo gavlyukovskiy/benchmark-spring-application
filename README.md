@@ -8,15 +8,15 @@
 2. Run application (see different options below)
 3. Run **db-read-test** (reading a random item from postgres)
     ```bash
-    docker run --rm -i grafana/k6 run - [-e TARGET_HOST=host.docker.internal] [--quiet] <tools/k6/db-read-test.js
+    docker run [-e TARGET_HOST=host.docker.internal] [--network benchmark-spring-aplication_default] --rm -i grafana/k6 run [--quiet] - <tools/k6/db-read-test.js
     ```
 4. Run **copy-test** (writing a 50MB file to a disk)
     ```bash
-    docker run --rm -i grafana/k6 run - [-e TARGET_HOST=host.docker.internal] [--quiet] <tools/k6/copy-test.js
+    docker run [-e TARGET_HOST=host.docker.internal] [--network benchmark-spring-aplication_default] --rm -i grafana/k6 run [--quiet] - <tools/k6/copy-test.js
     ```
 5. Run **download-test** test (downloading two files consecutively from an external webservice)
     ```bash
-    docker run --rm -i grafana/k6 run - [-e TARGET_HOST=host.docker.internal] [--quiet] <tools/k6/download-test.js
+    docker run [-e TARGET_HOST=host.docker.internal] [--network benchmark-spring-aplication_default] --rm -i grafana/k6 run [--quiet] - <tools/k6/download-test.js
     ```
 
 ### Web + jOOQ
@@ -29,7 +29,7 @@ or with Jetty
 ```
 #### Results **db-read-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
-docker run --rm -i grafana/k6 run - --quiet <tools/k6/db-read-test.js
+docker run --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
 ```
 ```text
 data_received..................: 34 MB  1.7 MB/s
@@ -52,7 +52,7 @@ vus_max........................: 1000   min=855       max=1000
 ```
 #### Results **copy-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
-docker run --rm -i grafana/k6 run - --quiet <tools/k6/copy-test.js
+docker run --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
 ```
 ```text
 data_received..................: 404 kB 15 kB/s
@@ -76,7 +76,7 @@ vus_max........................: 964    min=100      max=964
 
 #### Results **download-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
-docker run --rm -i grafana/k6 run - --quiet <tools/k6/download-test.js
+docker run --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
 ```
 ```text
 data_received..................: 128 kB 6.1 kB/s
@@ -108,7 +108,7 @@ or with Jetty
 ```
 #### Results **db-read-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
-docker run --rm -i grafana/k6 run - --quiet <tools/k6/db-read-test.js
+docker run --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
 ```
 ```text
 data_received..................: 34 MB  1.7 MB/s
@@ -131,7 +131,7 @@ vus_max........................: 1000   min=702       max=1000
 ```
 #### Results **copy-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
-docker run --rm -i grafana/k6 run - --quiet <tools/k6/copy-test.js
+docker run --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
 ```
 ```text
 data_received..................: 400 kB 15 kB/s
@@ -155,7 +155,7 @@ vus_max........................: 998    min=109      max=998
 
 #### Results **download-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
-docker run --rm -i grafana/k6 run - --quiet <tools/k6/download-test.js
+docker run --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
 ```
 ```text
 data_received..................: 115 kB 4.6 kB/s
@@ -183,7 +183,7 @@ vus_max........................: 213    min=100     max=213
 ```
 #### Results **db-read-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
-docker run --rm -i grafana/k6 run - --quiet <tools/k6/db-read-test.js
+docker run --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
 ```
 ```text
 data_received..................: 15 MB  744 kB/s
@@ -206,7 +206,7 @@ vus_max........................: 1000   min=712       max=1000
 ```
 #### Results **copy-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
-docker run --rm -i grafana/k6 run - --quiet <tools/k6/copy-test.js
+docker run --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
 ```
 ```text
 data_received..................: 238 kB 8.6 kB/s
@@ -230,7 +230,7 @@ vus_max........................: 927    min=100      max=927
 
 #### Results **download-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
-docker run --rm -i grafana/k6 run - --quiet <tools/k6/download-test.js
+docker run --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
 ```
 ```text
 data_received..................: 73 kB 3.6 kB/s

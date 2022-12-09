@@ -7,6 +7,7 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.field
 import org.jooq.impl.DSL.table
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
@@ -27,6 +28,7 @@ import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadLocalRandom
+import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.LongAdder
 import javax.sql.DataSource
 import kotlin.io.path.deleteIfExists
@@ -34,12 +36,12 @@ import kotlin.io.path.readBytes
 import kotlin.io.path.writeBytes
 
 fun main(args: Array<String>) {
-    runApplication<BenchmarkSpringWebApplication>(*args)
+    runApplication<SpringWebApplication>(*args)
 }
 
 @SpringBootApplication
 @EnableScheduling
-class BenchmarkSpringWebApplication {
+class SpringWebApplication {
 
     @Bean
     @Profile("loom")
@@ -68,6 +70,59 @@ class BenchmarkSpringWebApplication {
     @Profile("loom")
     fun asyncTaskExecutor() = TaskExecutorAdapter(Executors.newVirtualThreadPerTaskExecutor())
 }
+
+@RestController
+class Controller(val repository: Repository, val ioService: IoService) {
+    companion object {
+        val logger: Logger = LoggerFactory.getLogger(Controller::class.java)
+        val requestCount = LongAdder()
+        val previousRequestCount = AtomicLong(0)
+        val concurrency = AtomicLong(0)
+        val maxConcurrency = AtomicLong(0)
+    }
+
+    @GetMapping("/hello")
+    fun hello(): World? = World(0, "Hello world").also { logger.info("Hello! Virtual thread: ${Thread.currentThread().isVirtual}") }
+
+    @GetMapping("/db")
+    fun db(): World? = record { repository.getWorld(ThreadLocalRandom.current().nextInt(1, 10001)) }
+
+    @GetMapping("/cp")
+    fun cp(): Int = record { ioService.copyFiles() }
+
+    @GetMapping("/download")
+    fun download(): Int = record { ioService.downloadFile() }
+
+    private fun <T> record(block: () -> T): T {
+        concurrency.incrementAndGet().let { sample -> maxConcurrency.updateAndGet { max -> max.coerceAtLeast(sample) } }
+        requestCount.increment()
+        try {
+            return block()
+        } finally {
+            concurrency.decrementAndGet()
+        }
+    }
+
+    @Scheduled(fixedDelay = 5000)
+    private fun log() {
+        val count = requestCount.sum()
+        if (count > 0) {
+            val previousRequestCount = previousRequestCount.get().also { previousRequestCount.set(count) }
+            val maxConcurrency = maxConcurrency.get().also { maxConcurrency.set(concurrency.get()) }
+            logger.info("""
+                ---
+                throughput[5s]: ${(count - previousRequestCount) / 5}req/s
+                concurrency.max[5s]: $maxConcurrency
+                total: $count
+            """.trimIndent())
+        }
+    }
+}
+
+data class World(
+    val id: Int,
+    val message: String
+)
 
 sealed interface Repository {
     fun getWorld(id: Int): World?
@@ -126,40 +181,3 @@ class IoService(val client: OkHttpClient = OkHttpClient()) {
         return data1.length + data2.length
     }
 }
-
-@RestController
-class Controller(val repository: Repository, val ioService: IoService) {
-    companion object {
-        val logger = LoggerFactory.getLogger(Controller::class.java)
-        val requestCount = LongAdder()
-        var previousRequestCount: Long = 0
-    }
-
-    @GetMapping("/hello")
-    fun hello(): World? = World(0, "Hello world").also { logger.info("Hello! Virtual thread: ${Thread.currentThread().isVirtual}") }
-
-    @GetMapping("/db")
-    fun db(): World? = record { repository.getWorld(ThreadLocalRandom.current().nextInt(1, 10001)) }
-
-    @GetMapping("/cp")
-    fun cp(): Int = record { ioService.copyFiles() }
-
-    @GetMapping("/download")
-    fun download(): Int = record { ioService.downloadFile() }
-
-    private fun <T> record(block: () -> T) = block().also { requestCount.increment() }
-
-    @Scheduled(fixedDelay = 5000)
-    private fun log() {
-        val count = requestCount.sum()
-        if (count > 0) {
-            logger.info("Throughput[5s]: ${(count - previousRequestCount) / 5}req/s (total: $count)")
-            previousRequestCount = count
-        }
-    }
-}
-
-data class World(
-    val id: Int,
-    val message: String
-)

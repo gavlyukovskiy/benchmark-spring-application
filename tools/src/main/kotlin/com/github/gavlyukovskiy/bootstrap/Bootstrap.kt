@@ -6,7 +6,6 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.slf4j.impl.StaticLoggerBinder
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import kotlin.random.Random
 
@@ -27,7 +26,7 @@ fun main(args: Array<String>) {
 }
 
 private fun configureLogging() {
-    val loggerContext = StaticLoggerBinder.getSingleton().loggerFactory as LoggerContext
+    val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
     val logger = loggerContext.getLogger("root")
     logger.level = Level.INFO
 }

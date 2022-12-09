@@ -1,7 +1,5 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    kotlin("jvm") version "1.7.21"
+    kotlin("jvm")
 }
 
 java {
@@ -29,17 +27,6 @@ dependencies {
 }
 
 tasks {
-    withType<KotlinCompile>().configureEach {
-        kotlinOptions {
-            freeCompilerArgs = listOf("-Xjsr305=strict")
-            jvmTarget = "17"
-        }
-    }
-
-    withType<Test>().configureEach {
-        useJUnitPlatform()
-    }
-
     val bootstrap by registering(JavaExec::class) {
         mainClass.set("com.github.gavlyukovskiy.bootstrap.BootstrapKt")
         classpath(sourceSets.main.get().runtimeClasspath)

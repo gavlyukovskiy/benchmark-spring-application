@@ -1,9 +1,6 @@
-import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    kotlin("jvm") version "1.7.21"
-    kotlin("plugin.spring") version "1.7.21"
+    kotlin("jvm")
+    kotlin("plugin.spring")
     id("org.springframework.boot")
     id("io.spring.dependency-management")
     id("com.github.ben-manes.versions")
@@ -40,27 +37,4 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
-}
-
-tasks {
-    withType<KotlinCompile>().configureEach {
-        kotlinOptions {
-            freeCompilerArgs = listOf("-Xjsr305=strict")
-            jvmTarget = "17"
-        }
-    }
-
-    withType<Test>().configureEach {
-        useJUnitPlatform()
-    }
-
-    withType<DependencyUpdatesTask>().configureEach {
-        fun isNonStable(version: String): Boolean {
-            val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase().contains(it) }
-            val regex = "^[0-9,.v-]+(-r)?$".toRegex()
-            val isStable = stableKeyword || regex.matches(version)
-            return isStable.not()
-        }
-        rejectVersionIf { isNonStable(candidate.version) }
-    }
 }

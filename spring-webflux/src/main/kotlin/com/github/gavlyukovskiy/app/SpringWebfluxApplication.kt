@@ -24,18 +24,19 @@ import reactor.kotlin.core.publisher.toMono
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 import java.util.concurrent.ThreadLocalRandom
+import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.LongAdder
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.readBytes
 import kotlin.io.path.writeBytes
 
 fun main(args: Array<String>) {
-    runApplication<BenchmarkSpringWebfluxApplication>(*args)
+    runApplication<SpringWebfluxApplication>(*args)
 }
 
 @SpringBootApplication
 @EnableScheduling
-class BenchmarkSpringWebfluxApplication {
+class SpringWebfluxApplication {
 
     @Bean
     @Profile("jooq")
@@ -47,7 +48,9 @@ class Controller(val repository: Repository, val ioService: IoService) {
     companion object {
         val logger = LoggerFactory.getLogger(Controller::class.java)
         val requestCount = LongAdder()
-        var previousRequestCount: Long = 0
+        val previousRequestCount = AtomicLong(0)
+        val concurrency = AtomicLong(0)
+        val maxConcurrency = AtomicLong(0)
     }
 
     @GetMapping("/hello")
@@ -62,14 +65,28 @@ class Controller(val repository: Repository, val ioService: IoService) {
     @GetMapping("/download")
     suspend fun download(): Int = record { ioService.downloadFile() }
 
-    private suspend fun <T> record(block: suspend () -> T) = block().also { requestCount.increment() }
+    private suspend fun <T> record(block: suspend () -> T): T {
+        concurrency.incrementAndGet().let { sample -> maxConcurrency.updateAndGet { max -> max.coerceAtLeast(sample) } }
+        requestCount.increment()
+        try {
+            return block()
+        } finally {
+            concurrency.decrementAndGet()
+        }
+    }
 
     @Scheduled(fixedDelay = 5000)
     private fun log() {
         val count = requestCount.sum()
         if (count > 0) {
-            logger.info("Throughput[5s]: ${(count - previousRequestCount) / 5}req/s (total: $count)")
-            previousRequestCount = count
+            val previousRequestCount = previousRequestCount.get().also { previousRequestCount.set(count) }
+            val maxConcurrency = maxConcurrency.get().also { maxConcurrency.set(concurrency.get()) }
+            logger.info("""
+                ---
+                throughput[5s]: ${(count - previousRequestCount) / 5}req/s
+                concurrency.max[5s]: $maxConcurrency
+                total: $count
+            """.trimIndent())
         }
     }
 }
