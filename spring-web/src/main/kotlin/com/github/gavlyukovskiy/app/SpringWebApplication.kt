@@ -140,7 +140,7 @@ class Repository(val dataSource: DataSource) {
 
 @Component
 class IoService(val client: OkHttpClient = OkHttpClient()) {
-    fun copyFiles(chunkSize: Int = 1024, chunks: Int = 50): Int {
+    fun copyFiles(chunkSize: Int = 1024 * 1024, chunks: Int = 50): Int {
         val file = Files.createTempFile("benchmark_cp", ".data")
         val zeros = (1..chunkSize).map { 0.toByte() }.toList().toByteArray()
         repeat(chunks) {
