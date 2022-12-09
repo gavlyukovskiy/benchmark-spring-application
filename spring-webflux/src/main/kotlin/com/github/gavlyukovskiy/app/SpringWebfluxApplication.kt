@@ -45,7 +45,7 @@ class Controller(val repository: Repository, val ioService: IoService) {
     }
 
     @GetMapping("/hello")
-    suspend fun hello(): World? = World(0, "Hello world").also { logger.info("Hello!") }
+    suspend fun hello(): World? = repository.getWorld(1).also { logger.info("Hello!") }
 
     @GetMapping("/db")
     suspend fun db(): World? = record { repository.getWorld(ThreadLocalRandom.current().nextInt(1, 10001)) }
@@ -114,10 +114,12 @@ class Repository(val connectionFactory: ConnectionFactory) {
 }
 
 @Component
-class IoService(val client: OkHttpClient = OkHttpClient()) {
-    suspend fun copyFiles(chunkSize: Int = 1024 * 1024, chunks: Int = 50): Int = withContext(Dispatchers.IO) {
+class IoService(
+    val client: OkHttpClient = OkHttpClient(),
+    val zeros: ByteArray = (1..32 * 1024).map { 0.toByte() }.toList().toByteArray()
+) {
+    suspend fun copyFiles(chunks: Int = 32): Int = withContext(Dispatchers.IO) {
         val file = Files.createTempFile("benchmark", ".data")
-        val zeros = (1..chunkSize).map { 0.toByte() }.toList().toByteArray()
         repeat(chunks) {
             file.writeBytes(zeros, StandardOpenOption.APPEND, StandardOpenOption.DSYNC)
         }

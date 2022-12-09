@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 import java.util.concurrent.Executors
+import java.util.concurrent.Semaphore
 import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.LongAdder
@@ -42,7 +43,7 @@ class SpringWebApplication {
 
     @Bean
     @Profile("loom")
-    @ConditionalOnClass(name = [ "org.apache.coyote.ProtocolHandler" ])
+    @ConditionalOnClass(name = ["org.apache.coyote.ProtocolHandler"])
     @Suppress("ObjectLiteralToLambda") // not compiling as lambda to avoid ClassNotFoundException
     fun tomcatLoomExecutor() = object : TomcatProtocolHandlerCustomizer<ProtocolHandler> {
         override fun customize(protocolHandler: ProtocolHandler) {
@@ -52,7 +53,7 @@ class SpringWebApplication {
 
     @Bean
     @Profile("loom")
-    @ConditionalOnClass(name = [ "org.springframework.boot.web.embedded.jetty.ConfigurableJettyWebServerFactory" ])
+    @ConditionalOnClass(name = ["org.springframework.boot.web.embedded.jetty.ConfigurableJettyWebServerFactory"])
     @Suppress("ObjectLiteralToLambda") // not compiling as lambda to avoid ClassNotFoundException
     fun jettyLoomExecutor() =
         object : WebServerFactoryCustomizer<ConfigurableJettyWebServerFactory> {
@@ -79,7 +80,8 @@ class Controller(val repository: Repository, val ioService: IoService) {
     }
 
     @GetMapping("/hello")
-    fun hello(): World? = World(0, "Hello world").also { logger.info("Hello! Virtual thread: ${Thread.currentThread().isVirtual}") }
+    fun hello(): World? = repository.getWorld(1)
+        .also { logger.info("Hello! Virtual thread: ${Thread.currentThread().isVirtual}") }
 
     @GetMapping("/db")
     fun db(): World? = record { repository.getWorld(ThreadLocalRandom.current().nextInt(1, 10001)) }
@@ -106,12 +108,14 @@ class Controller(val repository: Repository, val ioService: IoService) {
         if (count > 0) {
             val previousRequestCount = previousRequestCount.get().also { previousRequestCount.set(count) }
             val maxConcurrency = maxConcurrency.get().also { maxConcurrency.set(concurrency.get()) }
-            logger.info("""
+            logger.info(
+                """
                 ---
                 throughput[5s]: ${(count - previousRequestCount) / 5}req/s
                 concurrency.max[5s]: $maxConcurrency
                 total: $count
-            """.trimIndent())
+            """.trimIndent()
+            )
         }
     }
 }
@@ -139,19 +143,21 @@ class Repository(val dataSource: DataSource) {
 }
 
 @Component
-class IoService(val client: OkHttpClient = OkHttpClient()) {
-    fun copyFiles(chunkSize: Int = 1024 * 1024, chunks: Int = 50): Int {
+class IoService(
+    val client: OkHttpClient = OkHttpClient(),
+    val semaphore: Semaphore = Semaphore(50),
+    val zeros: ByteArray = (1..32 * 1024).map { 0.toByte() }.toList().toByteArray()
+) {
+    fun copyFiles(chunks: Int = 32) = withSemaphore {
         val file = Files.createTempFile("benchmark_cp", ".data")
-        val zeros = (1..chunkSize).map { 0.toByte() }.toList().toByteArray()
         repeat(chunks) {
             file.writeBytes(zeros, StandardOpenOption.APPEND, StandardOpenOption.DSYNC)
         }
-        return file.readBytes().size.also {
-            file.deleteIfExists()
-        }
+        file.readBytes().size
+            .also { file.deleteIfExists() }
     }
 
-    fun downloadFile(): Int {
+    fun downloadFile() = withSemaphore {
         val request = Request.Builder().url("https://www.briandunning.com/sample-data/us-500.zip").build()
         val data1 = client.newCall(request)
             .execute()
@@ -159,6 +165,15 @@ class IoService(val client: OkHttpClient = OkHttpClient()) {
         val data2 = client.newCall(request)
             .execute()
             .use { response -> response.body!!.string() }
-        return data1.length + data2.length
+        data1.length + data2.length
+    }
+
+    private fun <T> withSemaphore(block: () -> T): T {
+        semaphore.acquire()
+        try {
+            return block()
+        } finally {
+            semaphore.release()
+        }
     }
 }

@@ -13,12 +13,12 @@ services:
       - "./docker/postgres:/var/lib/postgresql/data"
   spring-web-tomcat:
     image: spring-web-tomcat:latest
-    container_name: spring-web-tomcat
+    container_name: application
     environment:
-      JAVA_TOOL_OPTIONS: -XX:ReservedCodeCacheSize=120M -XX:ActiveProcessorCount=2
+      JAVA_TOOL_OPTIONS: -XX:MaxDirectMemorySize=250M -XX:ActiveProcessorCount=2
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hello_world
-    volumes:
-      - "./docker/profiler:/workspace/profiler"
+    ports:
+      - "8080:8080"
     cpu_count: 2
     mem_limit: 1G
     mem_reservation: 1G
@@ -26,13 +26,14 @@ services:
       - postgres
   spring-web-tomcat-loom:
     image: spring-web-tomcat:latest
-    container_name: spring-web-tomcat-loom
+    container_name: application
     environment:
-      JAVA_TOOL_OPTIONS: -XX:ReservedCodeCacheSize=120M -XX:ActiveProcessorCount=2 --enable-preview
+      JAVA_TOOL_OPTIONS: -XX:MaxDirectMemorySize=250M -XX:ActiveProcessorCount=2 --enable-preview
+      # JAVA_TOOL_OPTIONS: -XX:MaxDirectMemorySize=250M -XX:ActiveProcessorCount=2 --enable-preview -Djdk.tracePinnedThreads=full
       SPRING_PROFILES_ACTIVE: loom
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hello_world
-    volumes:
-      - "./docker/profiler:/workspace/profiler"
+    ports:
+      - "8080:8080"
     cpu_count: 2
     mem_limit: 1G
     mem_reservation: 1G
@@ -40,12 +41,12 @@ services:
       - postgres
   spring-web-jetty:
     image: spring-web-jetty:latest
-    container_name: spring-web-jetty
+    container_name: application
     environment:
-      JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+      JAVA_TOOL_OPTIONS: -XX:MaxDirectMemorySize=250M -XX:ActiveProcessorCount=2
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hello_world
-    volumes:
-      - "./docker/profiler:/workspace/profiler"
+    ports:
+      - "8080:8080"
     cpu_count: 2
     mem_limit: 1G
     mem_reservation: 1G
@@ -53,13 +54,27 @@ services:
       - postgres
   spring-web-jetty-loom:
     image: spring-web-jetty:latest
-    container_name: spring-web-jetty-loom
+    container_name: application
     environment:
-      JAVA_TOOL_OPTIONS: -XX:ReservedCodeCacheSize=120M -XX:ActiveProcessorCount=2 --enable-preview
+      JAVA_TOOL_OPTIONS: -XX:MaxDirectMemorySize=250M -XX:ActiveProcessorCount=2 --enable-preview
+      # JAVA_TOOL_OPTIONS: -XX:MaxDirectMemorySize=250M -XX:ActiveProcessorCount=2 --enable-preview -Djdk.tracePinnedThreads=full
       SPRING_PROFILES_ACTIVE: loom
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hello_world
-    volumes:
-      - "./docker/profiler:/workspace/profiler"
+    ports:
+      - "8080:8080"
+    cpu_count: 2
+    mem_limit: 1G
+    mem_reservation: 1G
+    depends_on:
+      - postgres
+  spring-webflux:
+    image: spring-webflux:latest
+    container_name: application
+    environment:
+      JAVA_TOOL_OPTIONS: -XX:MaxDirectMemorySize=250M -XX:ActiveProcessorCount=2
+      SPRING_R2DBC_URL: r2dbc:postgresql://postgres:5432/hello_world
+    ports:
+      - "8080:8080"
     cpu_count: 2
     mem_limit: 1G
     mem_reservation: 1G
