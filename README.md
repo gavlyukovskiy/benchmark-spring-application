@@ -19,13 +19,13 @@
     docker run [-e TARGET_HOST=host.docker.internal] [--network benchmark-spring-aplication_default] --rm -i grafana/k6 run [--quiet] - <tools/k6/download-test.js
     ```
 
-### Web + jOOQ
+### Web
 ```bash
-./gradlew :spring-web:bootRun --args="--spring.profiles.active=jooq"
+./gradlew :spring-web:bootRun
 ```
 or with Jetty
 ```bash
-./gradlew -Pjetty :spring-web:bootRun --args="--spring.profiles.active=jooq"
+./gradlew -Pjetty :spring-web:bootRun
 ```
 #### Results **db-read-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
@@ -98,13 +98,13 @@ vus............................: 112    min=100     max=112
 vus_max........................: 112    min=100     max=112
 ```
 
-### Web + jOOQ + Loom
+### Web + Loom
 ```bash
-./gradlew :spring-web:bootRun --args="--spring.profiles.active=jooq,loom"
+./gradlew :spring-web:bootRun --args="--spring.profiles.active=loom"
 ```
 or with Jetty
 ```bash
-./gradlew -Pjetty :spring-web:bootRun --args="--spring.profiles.active=jooq,loom"
+./gradlew -Pjetty :spring-web:bootRun --args="--spring.profiles.active=loom"
 ```
 #### Results **db-read-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
@@ -177,9 +177,9 @@ vus............................: 213    min=100     max=213
 vus_max........................: 213    min=100     max=213
 ```
 
-### Webflux + jOOQ
+### Webflux
 ```bash
-./gradlew :spring-webflux:bootRun --args="--spring.profiles.active=jooq"
+./gradlew :spring-webflux:bootRun
 ```
 #### Results **db-read-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash

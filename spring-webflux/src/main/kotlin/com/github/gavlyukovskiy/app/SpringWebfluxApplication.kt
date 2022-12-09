@@ -7,8 +7,6 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.jooq.DSLContext
-import org.jooq.impl.DSL
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -36,12 +34,7 @@ fun main(args: Array<String>) {
 
 @SpringBootApplication
 @EnableScheduling
-class SpringWebfluxApplication {
-
-    @Bean
-    @Profile("jooq")
-    fun dslContext(connectionFactory: ConnectionFactory) = DSL.using(connectionFactory)
-}
+class SpringWebfluxApplication
 
 @RestController
 class Controller(val repository: Repository, val ioService: IoService) {
@@ -97,39 +90,8 @@ data class World(
 )
 
 @Component
-class IoService(val client: OkHttpClient = OkHttpClient()) {
-
-    suspend fun copyFiles(chunkSize: Int = 1024, chunks: Int = 50): Int = withContext(Dispatchers.IO) {
-        val file = Files.createTempFile("benchmark", ".data")
-        val zeros = (1..chunkSize).map { 0.toByte() }.toList().toByteArray()
-        (1..chunks).forEach {
-            file.writeBytes(zeros, StandardOpenOption.APPEND, StandardOpenOption.DSYNC)
-        }
-        file.readBytes().size.also {
-            file.deleteIfExists()
-        }
-    }
-
-    suspend fun downloadFile(): Int = withContext(Dispatchers.IO) {
-        val request = Request.Builder().url("https://www.briandunning.com/sample-data/us-500.zip").build()
-        val data1 = client.newCall(request)
-            .execute()
-            .use { response -> response.body!!.string() }
-        val data2 = client.newCall(request)
-            .execute()
-            .use { response -> response.body!!.string() }
-        data1.length + data2.length
-    }
-}
-
-sealed interface Repository {
-    suspend fun getWorld(id: Int): World?
-}
-
-@Component
-@Profile("!jooq")
-class PostgresRepository(val connectionFactory: ConnectionFactory) : Repository {
-    override suspend fun getWorld(id: Int): World? =
+class Repository(val connectionFactory: ConnectionFactory) {
+    suspend fun getWorld(id: Int): World? =
         Mono.usingWhen(
             connectionFactory.create(),
             { connection ->
@@ -154,12 +116,26 @@ class PostgresRepository(val connectionFactory: ConnectionFactory) : Repository 
 }
 
 @Component
-@Profile("jooq")
-class JooqRepository(val context: DSLContext) : Repository {
-    override suspend fun getWorld(id: Int): World? =
-        context.select(DSL.field("id"), DSL.field("message"))
-            .from(DSL.table("worlds"))
-            .where(DSL.field("id").eq(id))
-            .awaitFirstOrNull()
-            ?.into(World::class.java)
+class IoService(val client: OkHttpClient = OkHttpClient()) {
+    suspend fun copyFiles(chunkSize: Int = 1024, chunks: Int = 50): Int = withContext(Dispatchers.IO) {
+        val file = Files.createTempFile("benchmark", ".data")
+        val zeros = (1..chunkSize).map { 0.toByte() }.toList().toByteArray()
+        repeat(chunks) {
+            file.writeBytes(zeros, StandardOpenOption.APPEND, StandardOpenOption.DSYNC)
+        }
+        file.readBytes().size.also {
+            file.deleteIfExists()
+        }
+    }
+
+    suspend fun downloadFile(): Int = withContext(Dispatchers.IO) {
+        val request = Request.Builder().url("https://www.briandunning.com/sample-data/us-500.zip").build()
+        val data1 = client.newCall(request)
+            .execute()
+            .use { response -> response.body!!.string() }
+        val data2 = client.newCall(request)
+            .execute()
+            .use { response -> response.body!!.string() }
+        data1.length + data2.length
+    }
 }

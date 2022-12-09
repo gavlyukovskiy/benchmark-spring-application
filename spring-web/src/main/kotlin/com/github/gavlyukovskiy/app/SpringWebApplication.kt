@@ -4,9 +4,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.apache.coyote.ProtocolHandler
 import org.eclipse.jetty.util.thread.QueuedThreadPool
-import org.jooq.DSLContext
-import org.jooq.impl.DSL.field
-import org.jooq.impl.DSL.table
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -124,14 +121,9 @@ data class World(
     val message: String
 )
 
-sealed interface Repository {
-    fun getWorld(id: Int): World?
-}
-
 @Component
-@Profile("!jooq")
-class PostgresRepository(val dataSource: DataSource) : Repository {
-    override fun getWorld(id: Int): World? =
+class Repository(val dataSource: DataSource) {
+    fun getWorld(id: Int): World? =
         dataSource.connection.use { connection ->
             connection.prepareStatement("select id, message from worlds where id = ?").use { preparedStatement ->
                 preparedStatement.setInt(1, id)
@@ -147,22 +139,11 @@ class PostgresRepository(val dataSource: DataSource) : Repository {
 }
 
 @Component
-@Profile("jooq")
-class JooqRepository(val context: DSLContext) : Repository {
-    override fun getWorld(id: Int): World? =
-        context.select(field("id"), field("message"))
-            .from(table("worlds"))
-            .where(field("id").eq(id))
-            .fetchOneInto(World::class.java)
-}
-
-@Component
 class IoService(val client: OkHttpClient = OkHttpClient()) {
-
     fun copyFiles(chunkSize: Int = 1024, chunks: Int = 50): Int {
         val file = Files.createTempFile("benchmark_cp", ".data")
         val zeros = (1..chunkSize).map { 0.toByte() }.toList().toByteArray()
-        (1..chunks).forEach {
+        repeat(chunks) {
             file.writeBytes(zeros, StandardOpenOption.APPEND, StandardOpenOption.DSYNC)
         }
         return file.readBytes().size.also {

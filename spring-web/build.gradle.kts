@@ -16,7 +16,6 @@ repositories {
     mavenCentral()
 }
 
-extra["jooq.version"] = "3.17.5"
 extra["jakarta-servlet.version"] = "5.0.0"
 
 dependencies {
@@ -33,12 +32,10 @@ dependencies {
         compileOnly("org.springframework.boot:spring-boot-starter-jetty")
         compileOnly("org.eclipse.jetty.http2:http2-server")
     }
-    implementation("org.springframework.boot:spring-boot-starter-jooq")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.jooq:jooq")
-    implementation("org.jooq:jooq-kotlin")
     implementation("com.squareup.okhttp3:okhttp")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

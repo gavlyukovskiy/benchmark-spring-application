@@ -1,15 +1,4 @@
----
 spring:
-  config:
-    activate:
-      on-profile: jooq
-logging:
-  level:
-    org.jooq.Constants: OFF
----
-spring:
-  profiles:
-    active: jooq
   main:
     banner-mode: off
   r2dbc:
