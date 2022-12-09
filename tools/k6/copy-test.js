@@ -5,12 +5,9 @@ import { textSummary } from "https://jslib.k6.io/k6-summary/0.0.2/index.js";
 export const options = {
   scenarios: {
     main: {
-      executor: 'constant-arrival-rate',
-      rate: 200,
-      timeUnit: '1s',
-      duration: '20s',
-      preAllocatedVUs: 100,
-      maxVUs: 1000,
+      executor: 'constant-vus',
+      vUs: 500,
+      duration: '30s',
     },
   },
   summaryTrendStats: ['avg', 'p(99)', 'p(99.9)', 'p(99.99)', 'max'],
