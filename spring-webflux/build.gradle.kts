@@ -19,7 +19,6 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -27,7 +26,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-    runtimeOnly("io.r2dbc:r2dbc-pool")
+    implementation("io.r2dbc:r2dbc-spi")
+    implementation("io.r2dbc:r2dbc-pool")
     runtimeOnly("org.postgresql:r2dbc-postgresql")
     implementation("com.squareup.okhttp3:okhttp")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
