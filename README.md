@@ -41,7 +41,7 @@
 4. Run **db-read-test** (reading a random item from postgres)
    1. With application in Docker
       ```bash
-      docker run -e TARGET_HOST=application --network benchmark-spring-aplication_default --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
+      docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
       ```
    2. With application in Gradle
       ```bash
@@ -50,7 +50,7 @@
 5. Run **copy-test** (writing a 1 MiB file to a disk in 32 chunks of 32 KiB)
     1. With application in Docker
        ```bash
-       docker run -e TARGET_HOST=application --network benchmark-spring-aplication_default --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
+       docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
        ```
     2. With application in Gradle
        ```bash
@@ -59,7 +59,7 @@
 6. Run **download-test** test (downloading two files consecutively from an external webservice)
     1. With application in Docker
        ```bash
-       docker run -e TARGET_HOST=application --network benchmark-spring-aplication_default --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
+       docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
        ```
     2. With application in Gradle
        ```bash
@@ -72,7 +72,7 @@ docker compose rm --force && docker compose up spring-web-tomcat
 ```
 #### Results **db-read-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
-docker run -e TARGET_HOST=application --network benchmark-spring-aplication_default --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
+docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
 ```
      checks...............: 100.00% ✓ 497605       ✗ 0
      data_received........: 202 MB  6.7 MB/s
@@ -82,7 +82,7 @@ docker run -e TARGET_HOST=application --network benchmark-spring-aplication_defa
 
 #### Results **copy-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
-docker run -e TARGET_HOST=application --network benchmark-spring-aplication_default --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
+docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
 ```
      checks...............: 100.00% ✓ 1350      ✗ 0
      data_received........: 177 kB  3.8 kB/s
@@ -93,7 +93,7 @@ docker run -e TARGET_HOST=application --network benchmark-spring-aplication_defa
 
 #### Results **download-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
-docker run -e TARGET_HOST=application --network benchmark-spring-aplication_default --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
+docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
 ```
      checks...............: 100.00% ✓ 2099      ✗ 0
      data_received........: 271 kB  7.0 kB/s
@@ -108,7 +108,7 @@ docker compose rm --force && docker compose up spring-web-tomcat-loom
 #### Results **db-read-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 > Pinned carrier threads result in degraded performance (https://github.com/pgjdbc/pgjdbc/issues/1951)
 ```bash
-docker run -e TARGET_HOST=application --network benchmark-spring-aplication_default --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
+docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
 ```
      checks...............: 100.00% ✓ 189290     ✗ 0
      data_received........: 77 MB   2.6 MB/s
@@ -118,7 +118,7 @@ docker run -e TARGET_HOST=application --network benchmark-spring-aplication_defa
 
 #### Results **copy-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
-docker run -e TARGET_HOST=application --network benchmark-spring-aplication_default --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
+docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
 ```
      checks...............: 100.00% ✓ 1350      ✗ 0
      data_received........: 177 kB  3.8 kB/s
@@ -129,7 +129,7 @@ docker run -e TARGET_HOST=application --network benchmark-spring-aplication_defa
 
 #### Results **download-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
-docker run -e TARGET_HOST=application --network benchmark-spring-aplication_default --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
+docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
 ```
      checks...............: 100.00% ✓ 2139      ✗ 0
      data_received........: 276 kB  7.2 kB/s
@@ -143,7 +143,7 @@ docker compose rm --force && docker compose up spring-webflux
 ```
 #### Results **db-read-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
-docker run -e TARGET_HOST=application --network benchmark-spring-aplication_default --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
+docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
 ```
      checks...............: 100.00% ✓ 118127      ✗ 0
      data_received........: 34 MB   1.1 MB/s
@@ -153,7 +153,7 @@ docker run -e TARGET_HOST=application --network benchmark-spring-aplication_defa
 
 #### Results **copy-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
-docker run -e TARGET_HOST=application --network benchmark-spring-aplication_default --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
+docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
 ```
      checks...............: 100.00% ✓ 1524      ✗ 0
      data_received........: 118 kB  2.7 kB/s
@@ -163,7 +163,7 @@ docker run -e TARGET_HOST=application --network benchmark-spring-aplication_defa
 
 #### Results **download-test** (Windows, 12 vCPU, i5-10400F 2.9 GHz, 32GB)
 ```bash
-docker run -e TARGET_HOST=application --network benchmark-spring-aplication_default --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
+docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
 ```
      checks...............: 100.00% ✓ 2178      ✗ 0
      data_received........: 164 kB  4.3 kB/s

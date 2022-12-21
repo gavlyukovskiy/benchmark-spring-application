@@ -34,7 +34,14 @@ subprojects {
 
         withType<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>().configureEach {
             imageName.set(project.name)
-            buildpacks.set(listOf("gcr.io/paketo-buildpacks/adoptium", "urn:cnb:builder:paketo-buildpacks/java"))
+            buildpacks.set(listOf("gcr.io/paketo-buildpacks/amazon-corretto", "urn:cnb:builder:paketo-buildpacks/java"))
+            environment.set(
+                mapOf(
+                    "BP_JVM_TYPE" to "JDK",
+                    "BP_JVM_VERSION" to "19",
+                    "BPL_JVM_HEAD_ROOM" to "10"
+                )
+            )
         }
     }
 }
