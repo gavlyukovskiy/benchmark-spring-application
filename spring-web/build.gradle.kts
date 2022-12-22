@@ -14,6 +14,9 @@ java {
 
 repositories {
     mavenCentral()
+    maven {
+        setUrl("../lib")
+    }
 }
 
 extra["jakarta-servlet.version"] = "5.0.0"
@@ -37,7 +40,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.squareup.okhttp3:okhttp")
-    runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("org.postgresql:postgresql:42.5.2-pr-2635-d7267a7-SNAPSHOT")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 

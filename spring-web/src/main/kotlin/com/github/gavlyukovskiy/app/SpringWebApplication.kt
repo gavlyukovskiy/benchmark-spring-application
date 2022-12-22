@@ -2,7 +2,10 @@ package com.github.gavlyukovskiy.app
 
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.apache.catalina.connector.Connector
 import org.apache.coyote.ProtocolHandler
+import org.apache.coyote.http11.AbstractHttp11Protocol
+import org.apache.coyote.http11.Http11NioProtocol
 import org.eclipse.jetty.util.thread.QueuedThreadPool
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -11,6 +14,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration
 import org.springframework.boot.runApplication
 import org.springframework.boot.web.embedded.jetty.ConfigurableJettyWebServerFactory
+import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer
 import org.springframework.boot.web.embedded.tomcat.TomcatProtocolHandlerCustomizer
 import org.springframework.boot.web.server.WebServerFactoryCustomizer
 import org.springframework.context.annotation.Bean
@@ -42,8 +46,18 @@ fun main(args: Array<String>) {
 class SpringWebApplication {
 
     @Bean
+    @ConditionalOnClass(name = ["org.apache.catalina.startup.Tomcat"])
+    @Suppress("ObjectLiteralToLambda") // not compiling as lambda to avoid ClassNotFoundException
+    fun noKeepAliveHeaderCustomizer() = object : TomcatProtocolHandlerCustomizer<AbstractHttp11Protocol<*>> {
+        override fun customize(protocolHandler: AbstractHttp11Protocol<*>) {
+            // save ~100 bytes with unnecessary headers, making it closer to netty
+            protocolHandler.useKeepAliveResponseHeader = false
+        }
+    }
+
+    @Bean
     @Profile("loom")
-    @ConditionalOnClass(name = ["org.apache.coyote.ProtocolHandler"])
+    @ConditionalOnClass(name = ["org.apache.catalina.startup.Tomcat"])
     @Suppress("ObjectLiteralToLambda") // not compiling as lambda to avoid ClassNotFoundException
     fun tomcatLoomExecutor() = object : TomcatProtocolHandlerCustomizer<ProtocolHandler> {
         override fun customize(protocolHandler: ProtocolHandler) {
@@ -53,15 +67,11 @@ class SpringWebApplication {
 
     @Bean
     @Profile("loom")
-    @ConditionalOnClass(name = ["org.springframework.boot.web.embedded.jetty.ConfigurableJettyWebServerFactory"])
-    @Suppress("ObjectLiteralToLambda") // not compiling as lambda to avoid ClassNotFoundException
-    fun jettyLoomExecutor() =
-        object : WebServerFactoryCustomizer<ConfigurableJettyWebServerFactory> {
-            override fun customize(factory: ConfigurableJettyWebServerFactory) {
-                val threadPool = QueuedThreadPool()
-                threadPool.isUseVirtualThreads = true
-                factory.setThreadPool(threadPool)
-            }
+    @ConditionalOnClass(name = ["org.eclipse.jetty.server.Server"])
+    fun jettyLoomExecutor() = WebServerFactoryCustomizer<ConfigurableJettyWebServerFactory> { factory ->
+            val threadPool = QueuedThreadPool()
+            threadPool.isUseVirtualThreads = true
+            factory.setThreadPool(threadPool)
         }
 
     @Bean(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME)

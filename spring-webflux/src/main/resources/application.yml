@@ -11,6 +11,8 @@ spring:
 server:
   http2:
     enabled: true
+  netty:
+    connection-timeout: 60
 
 logging:
   level:
