@@ -114,7 +114,7 @@ class Controller(val repository: Repository, val ioService: IoService) {
                 throughput[5s]: ${(count - previousRequestCount) / 5}req/s
                 concurrency.max[5s]: $maxConcurrency
                 total: $count
-            """.trimIndent()
+                """.trimIndent()
             )
         }
     }

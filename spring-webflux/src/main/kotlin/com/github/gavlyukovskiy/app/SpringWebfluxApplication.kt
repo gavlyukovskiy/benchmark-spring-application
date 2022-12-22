@@ -72,12 +72,14 @@ class Controller(val repository: Repository, val ioService: IoService) {
         if (count > 0) {
             val previousRequestCount = previousRequestCount.get().also { previousRequestCount.set(count) }
             val maxConcurrency = maxConcurrency.get().also { maxConcurrency.set(concurrency.get()) }
-            logger.info("""
+            logger.info(
+                """
                 ---
                 throughput[5s]: ${(count - previousRequestCount) / 5}req/s
                 concurrency.max[5s]: $maxConcurrency
                 total: $count
-            """.trimIndent())
+                """.trimIndent()
+            )
         }
     }
 }
