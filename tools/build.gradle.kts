@@ -22,7 +22,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.zaxxer:HikariCP")
-    implementation("org.postgresql:postgresql")
+    implementation("org.postgresql:postgresql:42.5.1")
     implementation("ch.qos.logback:logback-classic")
 }
 
