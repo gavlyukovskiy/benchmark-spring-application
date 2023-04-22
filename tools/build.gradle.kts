@@ -27,8 +27,11 @@ dependencies {
     implementation("ch.qos.logback:logback-classic")
 }
 
+val javaToolchainService = extensions.getByType<JavaToolchainService>()
+
 tasks {
     val bootstrap by registering(JavaExec::class) {
+        javaLauncher.set(javaToolchainService.launcherFor(java.toolchain))
         mainClass.set("com.github.gavlyukovskiy.bootstrap.BootstrapKt")
         classpath(sourceSets.main.get().runtimeClasspath)
     }
