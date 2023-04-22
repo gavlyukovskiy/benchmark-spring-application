@@ -1,4 +1,4 @@
-import { check } from 'k6';
+import { check, sleep } from 'k6';
 import http from 'k6/http';
 import { textSummary } from "https://jslib.k6.io/k6-summary/0.0.2/index.js";
 
@@ -16,7 +16,15 @@ export const options = {
 const host = __ENV.TARGET_HOST || 'host.docker.internal'
 
 export function setup() {
-  http.get(`http://${host}:8080/hello`);
+  while (true) {
+    const response = http.get(`http://${host}:8080/hello`, { timeout: 5000 });
+    if (response.status === 200) {
+      console.log("Service is ready")
+      return
+    }
+    console.log("Service hasn't started yet, sleeping for 1s")
+    sleep(1)
+  }
 }
 
 export default function () {
