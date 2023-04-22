@@ -1,7 +1,17 @@
+import org.gradle.kotlin.dsl.support.listFilesOrdered
+
 rootProject.name = "benchmark-spring-application"
 
-fileTree("./")
-    .filter { it.name == "build.gradle.kts" }
-    .filter { it.parentFile.name != rootProject.name }
-    .forEach { include(":${it.parentFile.name}") }
+fun discoverSubprojects(start: File): List<File> {
+    logger.debug("Visiting: $start")
+    return start.listFilesOrdered { file -> file.isDirectory && file.resolve("build.gradle.kts").exists() }
+        .flatMap { dir -> listOf(dir) + discoverSubprojects(dir) }
+}
+
+val rootPath = rootProject.projectDir
+discoverSubprojects(rootPath).forEach { subproject ->
+    val projectName = ":${subproject.relativeTo(rootPath).toString().replace(File.separator, ":")}"
+    logger.debug("Subproject: $subproject ($projectName)")
+    include(projectName)
+}
 

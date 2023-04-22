@@ -8,6 +8,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref-name }}
+  cancel-in-progress: true
+
 jobs:
   spring-web-tomcat:
     runs-on: ubuntu-latest

@@ -16,8 +16,6 @@ repositories {
     mavenCentral()
 }
 
-extra["jakarta-servlet.version"] = "5.0.0"
-
 dependencies {
     implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
 
