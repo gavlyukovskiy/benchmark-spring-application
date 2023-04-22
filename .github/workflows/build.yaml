@@ -33,7 +33,7 @@ jobs:
           ./gradlew :tools:bootstrap --args="postgres"
 
       - name: Start application
-        run: docker compose rm --force && docker compose up spring-web-tomcat
+        run: docker compose rm --force && docker compose up -d spring-web-tomcat
 
       - name: Run db-read-test
         run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
@@ -64,7 +64,7 @@ jobs:
           ./gradlew :tools:bootstrap --args="postgres"
 
       - name: Start application
-        run: docker compose rm --force && docker compose up spring-web-tomcat
+        run: docker compose rm --force && docker compose up -d spring-web-jetty
 
       - name: Run db-read-test
         run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
@@ -95,7 +95,7 @@ jobs:
           ./gradlew :tools:bootstrap --args="postgres"
 
       - name: Start application
-        run: docker compose rm --force && docker compose up spring-web-tomcat
+        run: docker compose rm --force && docker compose up -d spring-web-webflux
 
       - name: Run db-read-test
         run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js

@@ -15,15 +15,15 @@
    1. Docker
        1. Tomcat
            ```bash
-          docker compose rm --force && docker compose up spring-web-tomcat
+          docker compose rm --force && docker compose up -d spring-web-tomcat
           ```
        2. Tomcat + Loom
            ```bash
-          docker compose rm --force && docker compose up spring-web-tomcat-loom
+          docker compose rm --force && docker compose up -d spring-web-tomcat-loom
           ```
        3. Webflux
            ```bash
-          docker compose rm --force && docker compose up spring-webflux
+          docker compose rm --force && docker compose up -d spring-webflux
           ```
    2. Gradle
       1. Tomcat
