@@ -44,6 +44,37 @@ jobs:
       - name: Run download-test
         run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
 
+  spring-web-tomcat-loom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '20'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Build
+        run: ./gradlew :spring-web:build :spring-web:bootBuildImage
+
+      - name: Bootstrap
+        run: |
+          docker compose up -d postgres
+          ./gradlew :tools:bootstrap --args="postgres"
+
+      - name: Start application
+        run: docker compose rm --force && docker compose up -d spring-web-tomcat-loom
+
+      - name: Run db-read-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
+
+      - name: Run copy-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
+
+      - name: Run download-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
+
   spring-web-jetty:
     runs-on: ubuntu-latest
     steps:
@@ -65,6 +96,37 @@ jobs:
 
       - name: Start application
         run: docker compose rm --force && docker compose up -d spring-web-jetty
+
+      - name: Run db-read-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
+
+      - name: Run copy-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
+
+      - name: Run download-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
+
+  spring-web-jetty-loom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '20'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Build
+        run: ./gradlew -Pjetty :spring-web:build :spring-web:bootBuildImage
+
+      - name: Bootstrap
+        run: |
+          docker compose up -d postgres
+          ./gradlew :tools:bootstrap --args="postgres"
+
+      - name: Start application
+        run: docker compose rm --force && docker compose up -d spring-web-jetty-loom
 
       - name: Run db-read-test
         run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
