@@ -15,6 +15,10 @@ concurrency:
 jobs:
   spring-web-tomcat:
     runs-on: ubuntu-latest
+    outputs:
+      db-read-test-results: ${{ steps.db-read-test.outputs.results }}
+      copy-test-results: ${{ steps.copy-test.outputs.results }}
+      download-test-results: ${{ steps.download-test.outputs.results }}
     steps:
       - uses: actions/checkout@v3
 
@@ -36,16 +40,23 @@ jobs:
         run: docker compose rm --force && docker compose up -d spring-web-tomcat
 
       - name: Run db-read-test
-        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
+        id: db-read-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js | .github/capture_k6_results.sh
 
       - name: Run copy-test
-        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
+        id: copy-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js | .github/capture_k6_results.sh
 
       - name: Run download-test
-        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
+        id: download-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js | .github/capture_k6_results.sh
 
   spring-web-tomcat-loom:
     runs-on: ubuntu-latest
+    outputs:
+      db-read-test-results: ${{ steps.db-read-test.outputs.results }}
+      copy-test-results: ${{ steps.copy-test.outputs.results }}
+      download-test-results: ${{ steps.download-test.outputs.results }}
     steps:
       - uses: actions/checkout@v3
 
@@ -67,16 +78,23 @@ jobs:
         run: docker compose rm --force && docker compose up -d spring-web-tomcat-loom
 
       - name: Run db-read-test
-        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
+        id: db-read-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js | .github/capture_k6_results.sh
 
       - name: Run copy-test
-        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
+        id: copy-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js | .github/capture_k6_results.sh
 
       - name: Run download-test
-        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
+        id: download-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js | .github/capture_k6_results.sh
 
   spring-web-jetty:
     runs-on: ubuntu-latest
+    outputs:
+      db-read-test-results: ${{ steps.db-read-test.outputs.results }}
+      copy-test-results: ${{ steps.copy-test.outputs.results }}
+      download-test-results: ${{ steps.download-test.outputs.results }}
     steps:
       - uses: actions/checkout@v3
 
@@ -98,16 +116,23 @@ jobs:
         run: docker compose rm --force && docker compose up -d spring-web-jetty
 
       - name: Run db-read-test
-        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
+        id: db-read-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js | .github/capture_k6_results.sh
 
       - name: Run copy-test
-        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
+        id: copy-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js | .github/capture_k6_results.sh
 
       - name: Run download-test
-        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
+        id: download-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js | .github/capture_k6_results.sh
 
   spring-web-jetty-loom:
     runs-on: ubuntu-latest
+    outputs:
+      db-read-test-results: ${{ steps.db-read-test.outputs.results }}
+      copy-test-results: ${{ steps.copy-test.outputs.results }}
+      download-test-results: ${{ steps.download-test.outputs.results }}
     steps:
       - uses: actions/checkout@v3
 
@@ -129,16 +154,23 @@ jobs:
         run: docker compose rm --force && docker compose up -d spring-web-jetty-loom
 
       - name: Run db-read-test
-        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
+        id: db-read-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js | .github/capture_k6_results.sh
 
       - name: Run copy-test
-        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
+        id: copy-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js | .github/capture_k6_results.sh
 
       - name: Run download-test
-        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
+        id: download-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js | .github/capture_k6_results.sh
 
   spring-webflux:
     runs-on: ubuntu-latest
+    outputs:
+      db-read-test-results: ${{ steps.db-read-test.outputs.results }}
+      copy-test-results: ${{ steps.copy-test.outputs.results }}
+      download-test-results: ${{ steps.download-test.outputs.results }}
     steps:
       - uses: actions/checkout@v3
 
@@ -160,10 +192,105 @@ jobs:
         run: docker compose rm --force && docker compose up -d spring-webflux
 
       - name: Run db-read-test
-        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
+        id: db-read-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js | .github/capture_k6_results.sh
 
       - name: Run copy-test
-        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
+        id: copy-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js | .github/capture_k6_results.sh
 
       - name: Run download-test
-        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
+        id: download-test
+        run: docker run -e TARGET_HOST=application --network benchmark-network --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js | .github/capture_k6_results.sh
+
+  summary:
+    runs-on: ubuntu-latest
+    needs: [ spring-web-tomcat, spring-web-tomcat-loom, spring-web-jetty, spring-web-jetty-loom, spring-webflux ]
+    steps:
+      - name: Append results to BENCHLOG.md
+        run: |
+          cat << EOF >> BENCHLOG.md
+          ### date +%Y-%m-%d
+          #### Tomcat, **db-read-test** (Github Actions):
+          \`\`\`
+          ${{ needs.spring-web-tomcat.outputs.db-read-test }}
+          \`\`\`
+
+          #### Tomcat + Loom, **db-read-test** (Github Actions):
+          \`\`\`
+          ${{ needs.spring-web-tomcat-loom.outputs.db-read-test }}
+          \`\`\`
+
+          #### Jetty, **db-read-test** (Github Actions):
+          \`\`\`
+          ${{ needs.spring-web-jetty.outputs.db-read-test }}
+          \`\`\`
+
+          #### Jetty + Loom, **db-read-test** (Github Actions):
+          \`\`\`
+          ${{ needs.spring-web-jetty-loom.outputs.db-read-test }}
+          \`\`\`
+
+          #### Webflux, **db-read-test** (Github Actions):
+          \`\`\`
+          ${{ needs.spring-webflux.outputs.db-read-test }}
+          \`\`\`
+
+          #### Tomcat, **copy-test** (Github Actions):
+          \`\`\`
+          ${{ needs.spring-web-tomcat.outputs.copy-test }}
+          \`\`\`
+
+          #### Tomcat + Loom, **copy-test** (Github Actions):
+          \`\`\`
+          ${{ needs.spring-web-tomcat-loom.outputs.copy-test }}
+          \`\`\`
+
+          #### Jetty, **copy-test** (Github Actions):
+          \`\`\`
+          ${{ needs.spring-web-jetty.outputs.copy-test }}
+          \`\`\`
+
+          #### Jetty + Loom, **copy-test** (Github Actions):
+          \`\`\`
+          ${{ needs.spring-web-jetty-loom.outputs.copy-test }}
+          \`\`\`
+
+          #### Webflux, **copy-test** (Github Actions):
+          \`\`\`
+          ${{ needs.spring-webflux.outputs.copy-test }}
+          \`\`\`
+
+          #### Tomcat, **download-test** (Github Actions):
+          \`\`\`
+          ${{ needs.spring-web-tomcat.outputs.download-test }}
+          \`\`\`
+
+          #### Tomcat + Loom, **download-test** (Github Actions):
+          \`\`\`
+          ${{ needs.spring-web-tomcat-loom.outputs.download-test }}
+          \`\`\`
+
+          #### Jetty, **download-test** (Github Actions):
+          \`\`\`
+          ${{ needs.spring-web-jetty.outputs.download-test }}
+          \`\`\`
+
+          #### Jetty + Loom, **download-test** (Github Actions):
+          \`\`\`
+          ${{ needs.spring-web-jetty-loom.outputs.download-test }}
+          \`\`\`
+
+          #### Webflux, **download-test** (Github Actions):
+          \`\`\`
+          ${{ needs.spring-webflux.outputs.download-test }}
+          \`\`\`
+          EOF
+
+      - name: Commit the results
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add BENCHLOG.md
+          git commit -m "Benchmark results"
+          git push
