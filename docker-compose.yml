@@ -80,3 +80,7 @@ services:
     mem_reservation: 1G
     depends_on:
       - postgres
+
+networks:
+  default:
+    name: benchmark-network
