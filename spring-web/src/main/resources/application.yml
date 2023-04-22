@@ -1,6 +1,7 @@
 spring:
   main:
     banner-mode: off
+    lazy-initialization: true
   datasource:
     url: jdbc:postgresql://localhost:5432/hello_world
     username: postgres

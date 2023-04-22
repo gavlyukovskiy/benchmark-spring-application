@@ -1,0 +1,103 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  spring-web-tomcat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '20'
+          distribution: 'adopt'
+          cache: 'gradle'
+
+      - name: Build
+        run: ./gradlew :spring-web:build :spring-web:bootBuildImage
+
+      - name: Bootstrap
+        run: |
+          docker compose up -d postgres
+          ./gradlew :tools:bootstrap --args="postgres"
+
+      - name: Start application
+        run: docker compose rm --force && docker compose up spring-web-tomcat
+
+      - name: Run db-read-test
+        run: docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
+
+      - name: Run copy-test
+        run: docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
+
+      - name: Run download-test
+        run: docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
+
+  spring-web-jetty:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '20'
+          distribution: 'adopt'
+          cache: 'gradle'
+
+      - name: Build
+        run: ./gradlew -Pjetty :spring-web:build :spring-web:bootBuildImage
+
+      - name: Bootstrap
+        run: |
+          docker compose up -d postgres
+          ./gradlew :tools:bootstrap --args="postgres"
+
+      - name: Start application
+        run: docker compose rm --force && docker compose up spring-web-tomcat
+
+      - name: Run db-read-test
+        run: docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
+
+      - name: Run copy-test
+        run: docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
+
+      - name: Run download-test
+        run: docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js
+
+  spring-webflux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '20'
+          distribution: 'adopt'
+          cache: 'gradle'
+
+      - name: Build
+        run: ./gradlew :spring-webflux:build :spring-webflux:bootBuildImage
+
+      - name: Bootstrap
+        run: |
+          docker compose up -d postgres
+          ./gradlew :tools:bootstrap --args="postgres"
+
+      - name: Start application
+        run: docker compose rm --force && docker compose up spring-web-tomcat
+
+      - name: Run db-read-test
+        run: docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/db-read-test.js
+
+      - name: Run copy-test
+        run: docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/copy-test.js
+
+      - name: Run download-test
+        run: docker run -e TARGET_HOST=application --network benchmark-spring-application_default --rm -i grafana/k6 run --quiet - <tools/k6/download-test.js

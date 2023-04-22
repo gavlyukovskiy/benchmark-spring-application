@@ -8,20 +8,19 @@ plugins {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(19))
+        languageVersion.set(JavaLanguageVersion.of(20))
     }
 }
 
 repositories {
     mavenCentral()
-    maven {
-        setUrl("../lib")
-    }
 }
 
 extra["jakarta-servlet.version"] = "5.0.0"
 
 dependencies {
+    implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
+
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude("org.springframework.boot", "spring-boot-starter-tomcat")
@@ -36,11 +35,14 @@ dependencies {
         compileOnly("org.eclipse.jetty.http2:http2-server")
     }
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    runtimeOnly("org.postgresql:postgresql:42.6.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
     implementation("com.squareup.okhttp3:okhttp")
-    runtimeOnly("org.postgresql:postgresql:42.5.2-pr-2635-d7267a7-SNAPSHOT")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 

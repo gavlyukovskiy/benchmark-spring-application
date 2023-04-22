@@ -70,7 +70,7 @@ class SpringWebApplication {
     @ConditionalOnClass(name = ["org.eclipse.jetty.server.Server"])
     fun jettyLoomExecutor() = WebServerFactoryCustomizer<ConfigurableJettyWebServerFactory> { factory ->
             val threadPool = QueuedThreadPool()
-            threadPool.isUseVirtualThreads = true
+            threadPool.setVirtualThreadsExecutor(Executors.newVirtualThreadPerTaskExecutor())
             factory.setThreadPool(threadPool)
         }
 
