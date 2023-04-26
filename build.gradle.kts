@@ -3,7 +3,7 @@ version = "0.0.1-SNAPSHOT"
 
 plugins {
     kotlin("jvm") version "1.8.21" apply false
-    kotlin("plugin.spring") version "1.8.20" apply false
+    kotlin("plugin.spring") version "1.8.21" apply false
     id("org.springframework.boot") version "3.0.6" apply false
     id("com.github.ben-manes.versions") version "0.46.0" apply false
 }
