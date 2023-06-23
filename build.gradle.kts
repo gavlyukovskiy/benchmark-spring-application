@@ -5,7 +5,7 @@ plugins {
     val kotlinVersion = "1.8.22"
     kotlin("jvm") version kotlinVersion apply false
     kotlin("plugin.spring") version kotlinVersion apply false
-    id("org.springframework.boot") version "3.1.0" apply false
+    id("org.springframework.boot") version "3.1.1" apply false
     id("com.github.ben-manes.versions") version "0.47.0" apply false
 }
 
