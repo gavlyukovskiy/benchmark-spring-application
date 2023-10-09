@@ -6,7 +6,7 @@ plugins {
     kotlin("jvm") version kotlinVersion apply false
     kotlin("plugin.spring") version kotlinVersion apply false
     id("org.springframework.boot") version "3.1.4" apply false
-    id("com.github.ben-manes.versions") version "0.47.0" apply false
+    id("com.github.ben-manes.versions") version "0.49.0" apply false
 }
 
 subprojects {
