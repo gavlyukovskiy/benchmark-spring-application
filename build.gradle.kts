@@ -5,7 +5,7 @@ plugins {
     val kotlinVersion = "1.9.10"
     kotlin("jvm") version kotlinVersion apply false
     kotlin("plugin.spring") version kotlinVersion apply false
-    id("org.springframework.boot") version "3.1.4" apply false
+    id("org.springframework.boot") version "3.1.5" apply false
 }
 
 subprojects {
