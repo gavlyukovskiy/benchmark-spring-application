@@ -2,7 +2,6 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.spring")
     id("org.springframework.boot")
-    id("com.github.ben-manes.versions")
 }
 
 java {

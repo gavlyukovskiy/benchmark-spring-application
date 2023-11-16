@@ -6,7 +6,6 @@ plugins {
     kotlin("jvm") version kotlinVersion apply false
     kotlin("plugin.spring") version kotlinVersion apply false
     id("org.springframework.boot") version "3.1.4" apply false
-    id("com.github.ben-manes.versions") version "0.47.0" apply false
 }
 
 subprojects {
@@ -24,16 +23,6 @@ subprojects {
                 freeCompilerArgs = listOf("-Xjsr305=strict")
                 jvmTarget = "19"
             }
-        }
-
-        withType<com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask>().configureEach {
-            fun isNonStable(version: String): Boolean {
-                val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
-                val regex = "^[0-9,.v-]+(-r)?$".toRegex()
-                val isStable = stableKeyword || regex.matches(version)
-                return isStable.not()
-            }
-            rejectVersionIf { isNonStable(candidate.version) }
         }
 
         withType<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>().configureEach {
