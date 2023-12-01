@@ -15,7 +15,7 @@
    1. Docker
        1. Tomcat
            ```bash
-          docker compose rm --stop --force spring-web-tomcat && docker compose up -d spring-web-tomcat
+          docker compose rm --stop --force spring-web-tomcat spring-web-tomcat-loom spring-webflux && docker compose up -d spring-web-tomcat
           ```
        2. Tomcat + Loom
            ```bash
@@ -23,7 +23,7 @@
           ```
        3. Webflux
            ```bash
-          docker compose rm --stop --force spring-webflux && docker compose up -d spring-webflux
+          docker compose rm --stop --force spring-web-tomcat spring-web-tomcat-loom spring-webflux && docker compose up -d spring-webflux
           ```
    2. Gradle
       1. Tomcat

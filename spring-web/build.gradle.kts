@@ -25,11 +25,11 @@ dependencies {
     if (project.hasProperty("jetty")) {
         compileOnly("org.springframework.boot:spring-boot-starter-tomcat")
         implementation("org.springframework.boot:spring-boot-starter-jetty")
-        implementation("org.eclipse.jetty.http3:http3-server:11.0.18")
+        implementation("org.eclipse.jetty.http2:jetty-http2-server")
     } else {
         implementation("org.springframework.boot:spring-boot-starter-tomcat")
         compileOnly("org.springframework.boot:spring-boot-starter-jetty")
-        compileOnly("org.eclipse.jetty.http3:http3-server:11.0.18")
+        compileOnly("org.eclipse.jetty.http2:jetty-http2-server")
     }
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
     runtimeOnly("org.postgresql:postgresql:42.6.0")
