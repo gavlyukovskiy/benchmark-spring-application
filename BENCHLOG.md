@@ -1,8 +1,8 @@
 ### 2023-12-01
 
-Spring Boot 3.2.0
-Java 21
-Kotlin 1.9.21
+- Spring Boot 3.2.0
+- Java 21
+- Kotlin 1.9.21
 
 #### Web, **db-read-test** (Windows, 12 vCPU, AMD Ryzen 5 7600X 4.7 GHz, 64GB):
 
@@ -38,9 +38,9 @@ Kotlin 1.9.21
 
 ### 2022-12-22
 
-Spring Boot 3.1.0
-Java 20 (Preview)
-Kotlin 1.8.21
+- Spring Boot 3.1.0
+- Java 20 (Preview)
+- Kotlin 1.8.21
 
 #### Web, **db-read-test** (MacBook Pro M1, 2021, 32GB):
 
