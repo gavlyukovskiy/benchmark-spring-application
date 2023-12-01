@@ -54,29 +54,6 @@ class SpringWebApplication {
             protocolHandler.useKeepAliveResponseHeader = false
         }
     }
-
-    @Bean
-    @Profile("loom")
-    @ConditionalOnClass(name = ["org.apache.catalina.startup.Tomcat"])
-    @Suppress("ObjectLiteralToLambda") // not compiling as lambda to avoid ClassNotFoundException
-    fun tomcatLoomExecutor() = object : TomcatProtocolHandlerCustomizer<ProtocolHandler> {
-        override fun customize(protocolHandler: ProtocolHandler) {
-            protocolHandler.executor = Executors.newVirtualThreadPerTaskExecutor()
-        }
-    }
-
-    @Bean
-    @Profile("loom")
-    @ConditionalOnClass(name = ["org.eclipse.jetty.server.Server"])
-    fun jettyLoomExecutor() = WebServerFactoryCustomizer<ConfigurableJettyWebServerFactory> { factory ->
-            val threadPool = QueuedThreadPool()
-            threadPool.setVirtualThreadsExecutor(Executors.newVirtualThreadPerTaskExecutor())
-            factory.setThreadPool(threadPool)
-        }
-
-    @Bean(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME)
-    @Profile("loom")
-    fun asyncTaskExecutor() = TaskExecutorAdapter(Executors.newVirtualThreadPerTaskExecutor())
 }
 
 @RestController

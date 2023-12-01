@@ -7,7 +7,7 @@ plugins {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(20))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
@@ -25,11 +25,11 @@ dependencies {
     if (project.hasProperty("jetty")) {
         compileOnly("org.springframework.boot:spring-boot-starter-tomcat")
         implementation("org.springframework.boot:spring-boot-starter-jetty")
-        implementation("org.eclipse.jetty.http2:http2-server")
+        implementation("org.eclipse.jetty.http3:http3-server:11.0.18")
     } else {
         implementation("org.springframework.boot:spring-boot-starter-tomcat")
         compileOnly("org.springframework.boot:spring-boot-starter-jetty")
-        compileOnly("org.eclipse.jetty.http2:http2-server")
+        compileOnly("org.eclipse.jetty.http3:http3-server:11.0.18")
     }
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
     runtimeOnly("org.postgresql:postgresql:42.6.0")
@@ -41,13 +41,10 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
 }
 
 tasks {
-    withType<JavaExec>().configureEach {
-        jvmArgs = listOf("--enable-preview")
-    }
-
     withType<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>().configureEach {
         if (project.hasProperty("jetty")) {
             imageName.set("${project.name}-jetty")

@@ -28,8 +28,8 @@ services:
     image: spring-web-tomcat:latest
     container_name: application
     environment:
-      JAVA_TOOL_OPTIONS: -XX:MaxDirectMemorySize=250M -XX:ActiveProcessorCount=2 --enable-preview
-      # JAVA_TOOL_OPTIONS: -XX:MaxDirectMemorySize=250M -XX:ActiveProcessorCount=2 --enable-preview -Djdk.tracePinnedThreads=full
+      JAVA_TOOL_OPTIONS: -XX:MaxDirectMemorySize=250M -XX:ActiveProcessorCount=2
+      # JAVA_TOOL_OPTIONS: -XX:MaxDirectMemorySize=250M -XX:ActiveProcessorCount=2 -Djdk.tracePinnedThreads=full
       SPRING_PROFILES_ACTIVE: loom
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hello_world
     ports:
@@ -56,8 +56,8 @@ services:
     image: spring-web-jetty:latest
     container_name: application
     environment:
-      JAVA_TOOL_OPTIONS: -XX:MaxDirectMemorySize=250M -XX:ActiveProcessorCount=2 --enable-preview
-      # JAVA_TOOL_OPTIONS: -XX:MaxDirectMemorySize=250M -XX:ActiveProcessorCount=2 --enable-preview -Djdk.tracePinnedThreads=full
+      JAVA_TOOL_OPTIONS: -XX:MaxDirectMemorySize=250M -XX:ActiveProcessorCount=2
+      # JAVA_TOOL_OPTIONS: -XX:MaxDirectMemorySize=250M -XX:ActiveProcessorCount=2 -Djdk.tracePinnedThreads=full
       SPRING_PROFILES_ACTIVE: loom
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hello_world
     ports:

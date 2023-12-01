@@ -6,3 +6,7 @@ updates:
       interval: "daily"
     reviewers:
       - "gavlyukovskiy"
+    groups:
+      all:
+        patterns:
+          - "*"
