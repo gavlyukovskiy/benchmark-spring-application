@@ -4,7 +4,7 @@ version = "0.0.1-SNAPSHOT"
 plugins {
     kotlin("jvm") version "1.9.22" apply false
     kotlin("plugin.spring") version "1.9.22" apply false
-    id("org.springframework.boot") version "3.2.2" apply false
+    id("org.springframework.boot") version "3.2.3" apply false
 }
 
 subprojects {
