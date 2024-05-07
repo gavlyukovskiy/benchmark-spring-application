@@ -2,8 +2,8 @@ group = "com.github.gavlyukovskiy"
 version = "0.0.1-SNAPSHOT"
 
 plugins {
-    kotlin("jvm") version "1.9.23" apply false
-    kotlin("plugin.spring") version "1.9.23" apply false
+    kotlin("jvm") version "1.9.24" apply false
+    kotlin("plugin.spring") version "1.9.24" apply false
     id("org.springframework.boot") version "3.2.5" apply false
 }
 
